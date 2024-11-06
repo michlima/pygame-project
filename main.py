@@ -39,8 +39,15 @@ def main():
         dt = clock.tick(60) / 1000
 
     pygame.quit()
+
+
     
 
 
 if __name__ == "__main__":
     main()
+
+
+    print("Hello World")
+
+    
