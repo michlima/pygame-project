@@ -2,68 +2,113 @@ import pygame
 import random
 
 def drawConveyer(screen):
-    return pygame.draw.rect(screen, "red", pygame.Rect(screen.get_width() / 2 - 50, 0, 100, screen.get_height() - 100))
+    #                                                           xAxis              y  width height
+    return pygame.draw.rect(screen, "red", pygame.Rect(screen.get_width() / 2 - 50, 0, 100, screen.get_height()))
 
 def conveyBoxes(queuedBoxes, screen):
     conveyerVelocity = pygame.math.Vector2(1, 1)
     for box in queuedBoxes:
-        if len(queuedBoxes) < 7:
-            box["rect"].y += int(conveyerVelocity.y)
+        box["rect"].y += int(conveyerVelocity.y)
         # draw boxes on scree
-        pygame.draw.rect(screen,"blue", box["rect"])    
+        pygame.draw.rect(screen,box["color"], box["rect"])    
+
+def pickBox(queuedBoxes, player_pos):
+    removedBox = False
+    indexRemoved = -1
+    newBoxes = queuedBoxes
+
+    for box in range(len(queuedBoxes)):
+        x_diff = abs(player_pos.x - queuedBoxes[box]["rect"].x )
+        y_diff = abs(player_pos.y - queuedBoxes[box]["rect"].y)
+        if x_diff < 80 and y_diff < 50:
+            indexRemoved = box
+            removedBox = queuedBoxes[box]
+            
+            newBoxes.pop(indexRemoved)
+            removedBox["rect"].y = player_pos.y - 50
+            removedBox["rect"].x = player_pos.x
+            break
+    return {"newQueue": newBoxes, "boxPicked": removedBox}
+
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
     clock = pygame.time.Clock()
-    dt,count, running, queuedBoxes = 0 , 100, True, []
+    dt, count, running, queuedBoxes = 0 , 100, True, []
+    
+    # player position               x Axis                  y axis
     player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)
+    player_one_box = False
     
     # while game is running
     while running:
+        screen.fill("white")
+        ## draw coveyer table
+        drawConveyer(screen)
         count +=1
-        ## creates boxes every 100 frames if boxes can fit in conveyer belt
-        if count > 100 and len(queuedBoxes) < 7:
-            count = 0
-            randomPoints = random.randrange(1,5,1)
-            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, 20, 55, 55), "points": randomPoints})
-            print("draw")
 
+        ## creates boxes every 100 frames if boxes can fit in conveyer belt
+        if count > 100 :
+            count = 0
+            colors = ["orange", "green", "cyan", "pink", "gray"]
+            randomPoints = random.randrange(0,4,1)
+            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":colors[randomPoints]})
+        
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    newBoxes = pickBox( queuedBoxes, player_pos)
+                    queuedBoxes = newBoxes["newQueue"]
+                    if newBoxes["boxPicked"] != False:
+                        player_one_box = newBoxes["boxPicked"]
+                        player_one_box["rect"].y = player_pos.y - 100
+                        player_one_box["rect"].x = player_pos.x - 30
 
-        # fill the screen with a color to wipe away anything from last frame
-        screen.fill("white")
+        # draw and move boxes on conveyer
+        
+        conveyBoxes(queuedBoxes, screen)
+        
         # Draw player position
         pygame.draw.circle(screen, "purple", player_pos, 40)
-        
-        ## draw coveyer table
-        drawConveyer(screen)
-        
-        # draw and move boxes on conveyer
-        if len(queuedBoxes) > 1:  
-            conveyBoxes(queuedBoxes, screen)
+
+        if(player_one_box):
+            pygame.draw.rect(screen, player_one_box["color"], player_one_box["rect"])
             
+            
+        if(len(queuedBoxes) > 8):
+            del queuedBoxes[0]
+        
         #player movement
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
-            player_pos.y -= 300 * dt
+            player_pos.y -= 3
+            if player_one_box != False:
+                player_one_box["rect"].y -= 3
         if keys[pygame.K_s]:
-            player_pos.y += 300 * dt
-        if keys[pygame.K_a]:
-            player_pos.x -= 300 * dt
+            player_pos.y += 3
+            if player_one_box != False:
+                player_one_box["rect"].y += 3
+        if keys[pygame.K_a]: 
+            player_pos.x -= 3
+            if player_one_box != False:
+                player_one_box["rect"].x -= 3
         if keys[pygame.K_d]:
-            player_pos.x += 300 * dt
+            player_pos.x += 3
+            if player_one_box != False:
+                player_one_box["rect"].x += 3            
+
+        # pygame.draw.rect(screen,"green", player_one_box)
 
         # flip() the display to put your work on screen
         pygame.display.flip()
 
         # limits FPS to 60
-        # dt is delta time in seconds since last frame, used for framerate-
-        # independent physics.
-        dt = clock.tick(60) / 1000
+        dt = clock.tick(100) / 1000
+
     pygame.quit()
 
 
