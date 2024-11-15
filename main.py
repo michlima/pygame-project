@@ -1,9 +1,9 @@
 import pygame
 import random
 
-def drawConveyer(screen):
+def drawRectangle(screen, x,y, width, height):
     #                                                           xAxis              y  width height
-    return pygame.draw.rect(screen, "red", pygame.Rect(screen.get_width() / 2 - 50, 0, 100, screen.get_height()))
+    return pygame.draw.rect(screen, "red", pygame.Rect(x, y, width, height))
 
 def conveyBoxes(queuedBoxes, screen):
     conveyerVelocity = pygame.math.Vector2(1, 1)
@@ -45,15 +45,17 @@ def main():
     while running:
         screen.fill("white")
         ## draw coveyer table
-        drawConveyer(screen)
+        drawRectangle(screen,screen.get_width() / 2 - 50,0,100,screen.get_height())
+        
         count +=1
 
         ## creates boxes every 100 frames if boxes can fit in conveyer belt
         if count > 100 :
             count = 0
             colors = ["orange", "green", "cyan", "pink", "gray"]
-            randomPoints = random.randrange(0,4,1)
-            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":colors[randomPoints]})
+            randomPoints = random.randrange(1,5,1)
+            randomColor = random.choice(colors)
+            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":randomColor})
         
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
@@ -69,7 +71,6 @@ def main():
                         player_one_box["rect"].x = player_pos.x - 30
 
         # draw and move boxes on conveyer
-        
         conveyBoxes(queuedBoxes, screen)
         
         # Draw player position
