@@ -40,6 +40,7 @@ def main():
     # player position               x Axis                  y axis
     player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)
     player_one_box = False
+    PLAYER_RADIUS = 40  # Defining the Size of the player
     
     # while game is running
     while running:
@@ -55,6 +56,8 @@ def main():
             randomPoints = random.randrange(0,4,1)
             queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":colors[randomPoints]})
         
+        
+        # poll for events
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -99,9 +102,28 @@ def main():
         if keys[pygame.K_d]:
             player_pos.x += 3
             if player_one_box != False:
-                player_one_box["rect"].x += 3            
+                player_one_box["rect"].x += 3 
+
+
+        if player_pos.x < PLAYER_RADIUS:    #Restricts the player from moving of the left side of the screen
+            player_pos.x = PLAYER_RADIUS
+        if player_pos.x > screen.get_width() - PLAYER_RADIUS:   #Restricts the player from moving of the right side of the screen
+            player_pos.x = screen.get_width() - PLAYER_RADIUS
+        if player_pos.y < PLAYER_RADIUS: #Restricts the player from moving of the top of the screen
+            player_pos.y = PLAYER_RADIUS
+        if player_pos.y > screen.get_height() - PLAYER_RADIUS: #Restricts the player from moving of the bottom of the screen
+            player_pos.y = screen.get_height() - PLAYER_RADIUS
+
+        # Keeps the box centered over the character
+        if player_one_box:
+            player_one_box["rect"].x = player_pos.x - player_one_box["rect"].width // 2
+            player_one_box["rect"].y = player_pos.y - player_one_box["rect"].height - 10
+
+
+                 
 
         # pygame.draw.rect(screen,"green", player_one_box)
+
 
         # flip() the display to put your work on screen
         pygame.display.flip()
@@ -119,6 +141,9 @@ if __name__ == "__main__":
     main()
 
 
-    print("Hello World")
+  
+
 
     
+
+
