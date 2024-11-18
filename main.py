@@ -30,6 +30,15 @@ def pickBox(queuedBoxes, player_pos):
             break
     return {"newQueue": newBoxes, "boxPicked": removedBox}
 
+#create a boxendpoint on the left side of screen
+def boxendpoint_left(screen_left):
+    endpoint_left= pygame.draw.rect(screen_left, "blue", pygame.Rect(50, screen_left.get_height() / 2 - 100, 100, 200))
+    return endpoint_left
+
+#create a boxendpoint on the right side of screen
+def boxendpoint_right(screen_right):
+    endpoint_right= pygame.draw.rect(screen_right, "blue", pygame.Rect(screen_right.get_width() - 150, screen_right.get_height() / 2 - 100, 100, 200))
+    return endpoint_right
 
 def main():
     pygame.init()
@@ -46,6 +55,11 @@ def main():
         screen.fill("white")
         ## draw coveyer table
         drawConveyer(screen)
+
+        boxendpoint_leftside = boxendpoint_left(screen)
+        boxendpoint_rightside = boxendpoint_right(screen)
+
+
         count +=1
 
         ## creates boxes every 100 frames if boxes can fit in conveyer belt
