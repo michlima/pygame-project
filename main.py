@@ -49,8 +49,13 @@ def main():
     # player position               x Axis                  y axis
     player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)
     player_one_box = False
+
+    player2_pos = pygame.Vector2(screen.get_width() / 1.5, screen.get_height() / 2)
+    player_two_box = False
+
     PLAYER_RADIUS = 40  # Defining the Size of the player
     
+
     # while game is running
     while running:
         screen.fill("white")
@@ -86,6 +91,16 @@ def main():
                         player_one_box = newBoxes["boxPicked"]
                         player_one_box["rect"].y = player_pos.y - 100
                         player_one_box["rect"].x = player_pos.x - 30
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SLASH:
+                    newBoxes = pickBox( queuedBoxes, player2_pos)
+                    queuedBoxes = newBoxes["newQueue"]
+                    if newBoxes["boxPicked"] != False:
+                        player_two_box = newBoxes["boxPicked"]
+                        player_two_box["rect"].y = player2_pos.y -100
+                        player_two_box["rect"].x = player2_pos.x -30
 
         # draw and move boxes on conveyer
         
@@ -93,9 +108,13 @@ def main():
         
         # Draw player position
         pygame.draw.circle(screen, "purple", player_pos, 40)
+        pygame.draw.circle(screen, "green", player2_pos, 40)
+
 
         if(player_one_box):
             pygame.draw.rect(screen, player_one_box["color"], player_one_box["rect"])
+        if(player_two_box):
+            pygame.draw.rect(screen, player_two_box["color"], player_two_box["rect"])
             
             
         if(len(queuedBoxes) > 8):
@@ -118,6 +137,24 @@ def main():
         if keys[pygame.K_d]:
             player_pos.x += 3
             if player_one_box != False:
+
+                player_one_box["rect"].x += 3  
+        if keys[pygame.K_UP]:
+            player2_pos.y -= 3
+            if player_two_box != False:
+                player_two_box["rect"].y -= 3
+        if keys[pygame.K_DOWN]:
+            player2_pos.y += 3
+            if player_two_box != False:
+                player_two_box["rect"].y += 3
+        if keys[pygame.K_LEFT]: 
+            player2_pos.x -= 3
+            if player_two_box != False:
+                player_two_box["rect"].x -= 3
+        if keys[pygame.K_RIGHT]:
+            player2_pos.x += 3
+            if player_two_box != False:
+                player_two_box["rect"].x += 3                      
                 player_one_box["rect"].x += 3 
 
 
@@ -148,7 +185,7 @@ def main():
         dt = clock.tick(100) / 1000
 
     pygame.quit()
-
+    
 
     
 
