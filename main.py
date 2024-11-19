@@ -1,9 +1,9 @@
 import pygame
 import random
 
-def drawConveyer(screen):
+def drawConveyer(screen,x,y,color, w,h):
     #                                                           xAxis              y  width height
-    return pygame.draw.rect(screen, "red", pygame.Rect(screen.get_width() / 2 - 50, 0, 100, screen.get_height()))
+    return pygame.draw.rect(screen, color, pygame.Rect(x, y, w,h))
 
 def conveyBoxes(queuedBoxes, screen):
     conveyerVelocity = pygame.math.Vector2(1, 1)
@@ -30,6 +30,15 @@ def pickBox(queuedBoxes, player_pos):
             break
     return {"newQueue": newBoxes, "boxPicked": removedBox}
 
+#create a boxendpoint on the left side of screen
+def boxendpoint_left(screen_left):
+    endpoint_left= pygame.draw.rect(screen_left, "blue", pygame.Rect(50, screen_left.get_height() / 2 - 200, 100, 400))
+    return endpoint_left
+
+#create a boxendpoint on the right side of screen
+def boxendpoint_right(screen_right):
+    endpoint_right= pygame.draw.rect(screen_right, "blue", pygame.Rect(screen_right.get_width() - 150, screen_right.get_height() / 2 - 200, 100, 400))
+    return endpoint_right
 
 def main():
     pygame.init()
@@ -40,13 +49,25 @@ def main():
     # player position               x Axis                  y axis
     player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)
     player_one_box = False
+
     player2_pos = pygame.Vector2(screen.get_width() / 1.5, screen.get_height() / 2)
     player_two_box = False
+
+    PLAYER_RADIUS = 40  # Defining the Size of the player
+    
+
     # while game is running
     while running:
         screen.fill("white")
         ## draw coveyer table
-        drawConveyer(screen)
+        drawConveyer(screen, screen.get_width() / 2 - 50,0,"red",100,screen.get_height())
+        drawConveyer(screen, screen.get_width() - 150,screen.get_height() / 2 - 200,"blue",100,400)
+        drawConveyer(screen, 50,screen.get_height() / 2 - 200,"blue",100,400)
+        
+
+        
+
+
         count +=1
 
         ## creates boxes every 100 frames if boxes can fit in conveyer belt
@@ -56,6 +77,8 @@ def main():
             randomPoints = random.randrange(0,4,1)
             queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":colors[randomPoints]})
         
+        
+        # poll for events
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -114,6 +137,7 @@ def main():
         if keys[pygame.K_d]:
             player_pos.x += 3
             if player_one_box != False:
+
                 player_one_box["rect"].x += 3  
         if keys[pygame.K_UP]:
             player2_pos.y -= 3
@@ -131,8 +155,28 @@ def main():
             player2_pos.x += 3
             if player_two_box != False:
                 player_two_box["rect"].x += 3                      
+                player_one_box["rect"].x += 3 
+
+
+        if player_pos.x < PLAYER_RADIUS:    #Restricts the player from moving of the left side of the screen
+            player_pos.x = PLAYER_RADIUS
+        if player_pos.x > screen.get_width() - PLAYER_RADIUS:   #Restricts the player from moving of the right side of the screen
+            player_pos.x = screen.get_width() - PLAYER_RADIUS
+        if player_pos.y < PLAYER_RADIUS: #Restricts the player from moving of the top of the screen
+            player_pos.y = PLAYER_RADIUS
+        if player_pos.y > screen.get_height() - PLAYER_RADIUS: #Restricts the player from moving of the bottom of the screen
+            player_pos.y = screen.get_height() - PLAYER_RADIUS
+
+        # Keeps the box centered over the character
+        if player_one_box:
+            player_one_box["rect"].x = player_pos.x - player_one_box["rect"].width // 2
+            player_one_box["rect"].y = player_pos.y - player_one_box["rect"].height - 10
+
+
+                 
 
         # pygame.draw.rect(screen,"green", player_one_box)
+
 
         # flip() the display to put your work on screen
         pygame.display.flip()
@@ -150,6 +194,9 @@ if __name__ == "__main__":
     main()
 
 
-    print("Hello World")
+  
+
 
     
+
+
