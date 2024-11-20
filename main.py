@@ -2,8 +2,12 @@ import pygame
 import random
 
 def drawConveyer(screen,x,y,color, w,h):
-    #                                                           xAxis              y  width height
-    return pygame.draw.rect(screen, color, pygame.Rect(x, y, w,h))
+    #                                                        xAxis              y  width height
+    pygame.draw.rect(screen, color, pygame.Rect(x, y, w,h))
+
+def drawRectBorders(screen,color ,rect):
+    pygame.draw.rect(screen, color, rect,5)
+
 
 def conveyBoxes(queuedBoxes, screen):
     conveyerVelocity = pygame.math.Vector2(1, 1)
@@ -30,70 +34,103 @@ def pickBox(queuedBoxes, player_pos):
             break
     return {"newQueue": newBoxes, "boxPicked": removedBox}
 
+def drawDropOffs(screen):
+    colors = ["orange", "green", "cyan", "pink"]
+    y = screen.get_height() / 2 - 175
+    
+    for color in colors:
+        drawRectBorders(screen, color,((screen.get_width() - 75,y,55,55)))
+        drawRectBorders(screen, color,((25,y,55,55)))
+        y = y +100
+
+
+
+def dropBox(screen,playerOne, playerPosition,box):
+    x, y = 25, screen.get_height() / 2 - 175
+    if playerOne == False:
+        x = screen.get_width() - 75
+
+    orangeDrop = {"location": abs(y - 75), "color": "orange"} # orange
+    greenDrop = {"location": abs(y + 25), "color": "green"}  # green
+    cyanDrop =  {"location": abs(y + 125), "color": "cyan"} # cyan
+    pinkDrop = {"location": abs(y + 225), "color": "pink"} # pink
+    dropOffs = [orangeDrop, greenDrop, cyanDrop, pinkDrop]
+    for dropOff in dropOffs:
+        if abs(playerPosition.x - x) < 200 and abs(playerPosition.y - dropOff["location"] - 100) < 50:
+            if dropOff["color"] == box["color"]:
+                return True
+
+    return False
+
+    
+def drawScreenObjects(screen):
+    drawConveyer(screen, screen.get_width() / 2 - 50,0,"red",100,screen.get_height())
+    drawConveyer(screen, screen.get_width() - 100,screen.get_height() / 2 - 200,"blue",100,400)
+    drawConveyer(screen, 0,screen.get_height() / 2 - 200,"blue",100,400)
+    drawDropOffs(screen)
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
     clock = pygame.time.Clock()
     dt, count, running, queuedBoxes = 0 , 100, True, []
-    
-    # player position               x Axis                  y axis
-    player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)
-    player_one_box = False
 
-    player2_pos = pygame.Vector2(screen.get_width() / 1.5, screen.get_height() / 2)
-    player_two_box = False
+    player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)    # defines player position
+    player2_pos = pygame.Vector2(screen.get_width() / 1.5, screen.get_height() / 2) # defines player position
+
+    player_one_box = False # defines box player one is holding
+    player_two_box = False # defines box player two is holding
 
     PLAYER_RADIUS = 40  # Defining the Size of the player
-    
 
     # while game is running
     while running:
         screen.fill("white")
         ## draw coveyer table
-        drawConveyer(screen, screen.get_width() / 2 - 50,0,"red",100,screen.get_height())
-        drawConveyer(screen, screen.get_width() - 100,screen.get_height() / 2 - 200,"blue",100,400)
-        drawConveyer(screen, 0,screen.get_height() / 2 - 200,"blue",100,400)
-        
+        drawScreenObjects(screen)
+        count +=1 # count to send new boxes in conveyer
 
-        
-
-
-        count +=1
-
-        ## creates boxes every 100 frames if boxes can fit in conveyer belt
+        # creates boxes every 100 count
         if count > 100 :
-            count = 0
-            colors = ["orange", "green", "cyan", "pink", "gray"]
-            randomPoints = random.randrange(0,4,1)
+            colors = ["orange", "green", "cyan", "pink"]
+            randomPoints = random.randrange(1,4,1)
             queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":colors[randomPoints]})
+            count = 0
         
-        
-        # poll for events
-        # pygame.QUIT event means the user clicked X to close your window
+                
+        # Player picks boxes
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            # PLayer one pick / drop box
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    newBoxes = pickBox( queuedBoxes, player_pos)
-                    queuedBoxes = newBoxes["newQueue"]
-                    if newBoxes["boxPicked"] != False:
-                        player_one_box = newBoxes["boxPicked"]
-                        player_one_box["rect"].y = player_pos.y - 100
-                        player_one_box["rect"].x = player_pos.x - 30
-            if event.type == pygame.QUIT:
-                running = False
+                    if(player_one_box): # if player is holding box then drop box 
+                        boxDropped = dropBox(screen,True,player_pos,player_one_box)
+                        if(boxDropped):
+                            # What happens when player drops box off
+                            player_one_box = False
+                    else: # if player is NOT holding box then drop box 
+                        newBoxes = pickBox(queuedBoxes, player_pos)
+                        queuedBoxes = newBoxes["newQueue"]
+                        if newBoxes["boxPicked"] != False:
+                            player_one_box = newBoxes["boxPicked"]
+                            player_one_box["rect"].y = player_pos.y - 100
+                            player_one_box["rect"].x = player_pos.x - 30
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SLASH:
-                    newBoxes = pickBox( queuedBoxes, player2_pos)
-                    queuedBoxes = newBoxes["newQueue"]
-                    if newBoxes["boxPicked"] != False:
-                        player_two_box = newBoxes["boxPicked"]
-                        player_two_box["rect"].y = player2_pos.y -100
-                        player_two_box["rect"].x = player2_pos.x -30
+                    if(player_two_box):
+                        dropBox(screen,True,player2_pos, player_two_box)
+                    else:
+                        newBoxes = pickBox( queuedBoxes, player2_pos)
+                        queuedBoxes = newBoxes["newQueue"]
+                        if newBoxes["boxPicked"] != False:
+                            player_two_box = newBoxes["boxPicked"]
+                            player_two_box["rect"].y = player2_pos.y -100
+                            player_two_box["rect"].x = player2_pos.x -30
 
         # draw and move boxes on conveyer
-        
         conveyBoxes(queuedBoxes, screen)
         
         # Draw player position
