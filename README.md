@@ -70,6 +70,7 @@ After achieving a decided amount of points each player will race to achieve thos
 - walking
 
 **Images**
+image made from: https://www.piskelapp.com/p/create/sprite
 
 - Player img
 - box image
