@@ -120,6 +120,12 @@ def main():
             if player_one_box != False:
                 player_one_box["rect"].x += 3 
 
+        if player_pos.x > screen.get_width() / 2 - 50 - PLAYER_RADIUS:
+            player_pos.x = screen.get_width() / 2 - 50 - PLAYER_RADIUS
+
+        if player_pos.x < 50 + 100 + PLAYER_RADIUS:
+            player_pos.x = 50 + 100 + PLAYER_RADIUS
+
 
         if player_pos.x < PLAYER_RADIUS:    #Restricts the player from moving of the left side of the screen
             player_pos.x = PLAYER_RADIUS
