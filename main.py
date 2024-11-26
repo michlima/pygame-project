@@ -1,5 +1,6 @@
 import pygame
 import random
+import time #add timer
 
 def drawConveyer(screen,x,y,color, w,h):
     #                                                        xAxis              y  width height
@@ -27,7 +28,10 @@ def pickBox(queuedBoxes, player_pos):
         if x_diff < 80 and y_diff < 50:
             indexRemoved = box
             removedBox = queuedBoxes[box]
-            
+            if removedBox["box_is_bomb"]:
+                removedBox["color"] = "black" # bomb boxes turn black after pick up
+                removedBox["pickup_time"] = time.time # bomb takes action after a timeframe
+
             newBoxes.pop(indexRemoved)
             removedBox["rect"].y = player_pos.y - 50
             removedBox["rect"].x = player_pos.x
@@ -97,7 +101,8 @@ def main():
             boxColors = ["orange","green","cyan","pink","purple","brown","gray"]
 
             randomPoints = random.randrange(1,4,1)
-            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":random.choice(boxColors)})
+            box_is_bomb = random.random() < 0.1 #10% chance of bomb
+            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":random.choice(boxColors), "box_is_bomb": box_is_bomb})
             count = 0
         
                 
@@ -132,7 +137,11 @@ def main():
                             player_two_box = newBoxes["boxPicked"]
                             player_two_box["rect"].y = player2_pos.y -100
                             player_two_box["rect"].x = player2_pos.x -30
-
+        if player_one_box and "box_is_bomb" in player_one_box and player_one_box["box_is_bomb"] : #bomb boxes explode after 4 secs without deposit
+            current_time = time.time()
+            if current_time - player_one_box["pickup_time"] > 4:
+                #print("Bomb")#this can be replaced with visual and sound effects
+                player_one_box = False
         # draw and move boxes on conveyer
         conveyBoxes(queuedBoxes, screen)
         
