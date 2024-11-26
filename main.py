@@ -35,9 +35,8 @@ def pickBox(queuedBoxes, player_pos):
     return {"newQueue": newBoxes, "boxPicked": removedBox}
 
 def drawDropOffs(screen):
-    colors = ["orange", "green", "cyan", "pink"]
-    y = screen.get_height() / 2 - 175
-    
+    colors = ["orange","green","cyan","pink","purple","brown","gray"]
+    y = 25
     for color in colors:
         drawRectBorders(screen, color,((screen.get_width() - 75,y,55,55)))
         drawRectBorders(screen, color,((25,y,55,55)))
@@ -49,14 +48,17 @@ def dropBox(screen,playerOne, playerPosition,box):
     x, y = 25, screen.get_height() / 2 - 175
     if playerOne == False:
         x = screen.get_width() - 75
+    boxColors = ["orange","green","cyan","pink","purple","brown","gray"]
 
-    orangeDrop = {"location": abs(y - 75), "color": "orange"} # orange
-    greenDrop = {"location": abs(y + 25), "color": "green"}  # green
-    cyanDrop =  {"location": abs(y + 125), "color": "cyan"} # cyan
-    pinkDrop = {"location": abs(y + 225), "color": "pink"} # pink
-    dropOffs = [orangeDrop, greenDrop, cyanDrop, pinkDrop]
+    dropOffs = []
+    locationY = -35
+    for color in boxColors:
+        dropOffs.append({"location": locationY, "color": color})
+        locationY = locationY + 100
+
+
     for dropOff in dropOffs:
-        if abs(playerPosition.x - x) < 200 and abs(playerPosition.y - dropOff["location"] - 100) < 50:
+        if abs(playerPosition.x - x) < 200 and abs(playerPosition.y - dropOff["location"] - 100) < 35:
             if dropOff["color"] == box["color"]:
                 return True
 
@@ -65,8 +67,8 @@ def dropBox(screen,playerOne, playerPosition,box):
     
 def drawScreenObjects(screen):
     drawConveyer(screen, screen.get_width() / 2 - 50,0,"red",100,screen.get_height())
-    drawConveyer(screen, screen.get_width() - 100,screen.get_height() / 2 - 200,"blue",100,400)
-    drawConveyer(screen, 0,screen.get_height() / 2 - 200,"blue",100,400)
+    drawConveyer(screen, screen.get_width() - 100, 0 ,"blue",100,screen.get_height())
+    drawConveyer(screen, 0,0,"blue",100,screen.get_height())
     drawDropOffs(screen)
 
 def main():
@@ -92,9 +94,10 @@ def main():
 
         # creates boxes every 100 count
         if count > 100 :
-            colors = ["orange", "green", "cyan", "pink"]
+            boxColors = ["orange","green","cyan","pink","purple","brown","gray"]
+
             randomPoints = random.randrange(1,4,1)
-            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":colors[randomPoints]})
+            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":random.choice(boxColors)})
             count = 0
         
                 
@@ -205,12 +208,7 @@ def main():
             player_one_box["rect"].x = player_pos.x - player_one_box["rect"].width // 2
             player_one_box["rect"].y = player_pos.y - player_one_box["rect"].height - 10
 
-
-                 
-
         # pygame.draw.rect(screen,"green", player_one_box)
-
-
         # flip() the display to put your work on screen
         pygame.display.flip()
 
@@ -220,16 +218,6 @@ def main():
     pygame.quit()
     
 
-    
-
-
 if __name__ == "__main__":
     main()
-
-
-  
-
-
-    
-
 
