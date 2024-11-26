@@ -1,5 +1,6 @@
 import pygame
 import random
+import time #add timer
 
 def drawConveyer(screen,x,y,color, w,h):
     #                                                        xAxis              y  width height
@@ -27,7 +28,10 @@ def pickBox(queuedBoxes, player_pos):
         if x_diff < 80 and y_diff < 50:
             indexRemoved = box
             removedBox = queuedBoxes[box]
-            
+            if removedBox["box_is_bomb"]:
+                removedBox["color"] = "black" # bomb boxes turn black after pick up
+                removedBox["pickup_time"] = time.time() # bomb takes action after a timeframe
+
             newBoxes.pop(indexRemoved)
             removedBox["rect"].y = player_pos.y - 50
             removedBox["rect"].x = player_pos.x
@@ -35,9 +39,8 @@ def pickBox(queuedBoxes, player_pos):
     return {"newQueue": newBoxes, "boxPicked": removedBox}
 
 def drawDropOffs(screen):
-    colors = ["orange", "green", "cyan", "pink"]
-    y = screen.get_height() / 2 - 175
-    
+    colors = ["orange","green","cyan","pink","purple","brown","gray"]
+    y = 25
     for color in colors:
         drawRectBorders(screen, color,((screen.get_width() - 75,y,55,55)))
         drawRectBorders(screen, color,((25,y,55,55)))
@@ -49,14 +52,17 @@ def dropBox(screen,playerOne, playerPosition,box):
     x, y = 25, screen.get_height() / 2 - 175
     if playerOne == False:
         x = screen.get_width() - 75
+    boxColors = ["orange","green","cyan","pink","purple","brown","gray"]
 
-    orangeDrop = {"location": abs(y - 75), "color": "orange"} # orange
-    greenDrop = {"location": abs(y + 25), "color": "green"}  # green
-    cyanDrop =  {"location": abs(y + 125), "color": "cyan"} # cyan
-    pinkDrop = {"location": abs(y + 225), "color": "pink"} # pink
-    dropOffs = [orangeDrop, greenDrop, cyanDrop, pinkDrop]
+    dropOffs = []
+    locationY = -35
+    for color in boxColors:
+        dropOffs.append({"location": locationY, "color": color})
+        locationY = locationY + 100
+
+
     for dropOff in dropOffs:
-        if abs(playerPosition.x - x) < 200 and abs(playerPosition.y - dropOff["location"] - 100) < 50:
+        if abs(playerPosition.x - x) < 200 and abs(playerPosition.y - dropOff["location"] - 100) < 35:
             if dropOff["color"] == box["color"]:
                 return True
 
@@ -65,8 +71,8 @@ def dropBox(screen,playerOne, playerPosition,box):
     
 def drawScreenObjects(screen):
     drawConveyer(screen, screen.get_width() / 2 - 50,0,"red",100,screen.get_height())
-    drawConveyer(screen, screen.get_width() - 100,screen.get_height() / 2 - 200,"blue",100,400)
-    drawConveyer(screen, 0,screen.get_height() / 2 - 200,"blue",100,400)
+    drawConveyer(screen, screen.get_width() - 100, 0 ,"blue",100,screen.get_height())
+    drawConveyer(screen, 0,0,"blue",100,screen.get_height())
     drawDropOffs(screen)
 
 def main():
@@ -92,9 +98,11 @@ def main():
 
         # creates boxes every 100 count
         if count > 100 :
-            colors = ["orange", "green", "cyan", "pink"]
+            boxColors = ["orange","green","cyan","pink","purple","brown","gray"]
+
             randomPoints = random.randrange(1,4,1)
-            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":colors[randomPoints]})
+            box_is_bomb = random.random() < 0.1 #10% chance of bomb
+            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":random.choice(boxColors), "box_is_bomb": box_is_bomb})
             count = 0
         
                 
@@ -129,7 +137,11 @@ def main():
                             player_two_box = newBoxes["boxPicked"]
                             player_two_box["rect"].y = player2_pos.y -100
                             player_two_box["rect"].x = player2_pos.x -30
-
+        if player_one_box and "box_is_bomb" in player_one_box and player_one_box["box_is_bomb"] : #bomb boxes explode after 4 secs without deposit
+            current_time = time.time()
+            if current_time - player_one_box["pickup_time"] > 4:
+                #print("Bomb")#this can be replaced with visual and sound effects
+                player_one_box = False
         # draw and move boxes on conveyer
         conveyBoxes(queuedBoxes, screen)
         
@@ -183,6 +195,12 @@ def main():
             if player_two_box != False:
                 player_two_box["rect"].x += 3                      
 
+        if player_pos.x > screen.get_width() / 2 - 50 - PLAYER_RADIUS:
+            player_pos.x = screen.get_width() / 2 - 50 - PLAYER_RADIUS
+
+        if player_pos.x < 50 + 100 + PLAYER_RADIUS:
+            player_pos.x = 50 + 100 + PLAYER_RADIUS
+
 
         if  player_pos.x < PLAYER_RADIUS:    #Restricts the player from moving of the left side of the screen
             player_pos.x = PLAYER_RADIUS
@@ -193,6 +211,10 @@ def main():
         if player_pos.y > screen.get_height() - PLAYER_RADIUS: #Restricts the player from moving of the bottom of the screen
             player_pos.y = screen.get_height() - PLAYER_RADIUS
         
+        
+
+        if player2_pos.x < 200 + 100 + PLAYER_RADIUS:
+            player2_pos.x = 50 + 100 + PLAYER_RADIUS
         #Borders for player 2
         if  player2_pos.x < PLAYER_RADIUS:   
             player2_pos.x = PLAYER_RADIUS
@@ -214,12 +236,7 @@ def main():
             player_two_box["rect"].y = player2_pos.y - player_two_box["rect"].height - 10
         
 
-
-                 
-
         # pygame.draw.rect(screen,"green", player_one_box)
-
-
         # flip() the display to put your work on screen
         pygame.display.flip()
 
@@ -229,16 +246,6 @@ def main():
     pygame.quit()
     
 
-    
-
-
 if __name__ == "__main__":
     main()
-
-
-  
-
-
-    
-
 
