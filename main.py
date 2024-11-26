@@ -14,7 +14,7 @@ def all_text(font_file, font_size, text, true_or_false, t_color): # one function
     text_surface = text_font.render(text, true_or_false, t_color) # content and color
     return text_surface # return the rendered text surface
 
-def all_buttons(screen, button_rect_shape, text, font_file, font_size, button_color, text_color):
+def all_buttons(screen, button_rect_shape, text, font_file, font_size, button_color, text_color): # one function to handle all buttons
     pygame.draw.rect(screen, button_color, button_rect_shape) # create a button
     button_text = all_text(font_file, font_size, text, True, text_color) # add text to the button
     screen.blit(
