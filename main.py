@@ -9,6 +9,13 @@ def drawConveyer(screen,x,y,color, w,h):
 def drawRectBorders(screen,color ,rect):
     pygame.draw.rect(screen, color, rect,5)
 
+def all_text(font_file, t_size, t_text, true_or_false, t_color): # one function to handle all texts
+    text_font = pygame.font.Font(font_file, t_size) # font file and size
+    text_surface = text_font.render(t_text, true_or_false, t_color) # content and color
+    
+
+    
+
 
 def conveyBoxes(queuedBoxes, screen):
     conveyerVelocity = pygame.math.Vector2(1, 1)
