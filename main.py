@@ -30,7 +30,7 @@ def pickBox(queuedBoxes, player_pos):
             removedBox = queuedBoxes[box]
             if removedBox["box_is_bomb"]:
                 removedBox["color"] = "black" # bomb boxes turn black after pick up
-                removedBox["pickup_time"] = time.time # bomb takes action after a timeframe
+                removedBox["pickup_time"] = time.time() # bomb takes action after a timeframe
 
             newBoxes.pop(indexRemoved)
             removedBox["rect"].y = player_pos.y - 50
