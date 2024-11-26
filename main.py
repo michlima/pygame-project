@@ -182,10 +182,9 @@ def main():
             player2_pos.x += 3
             if player_two_box != False:
                 player_two_box["rect"].x += 3                      
-                player_one_box["rect"].x += 3 
 
 
-        if player_pos.x < PLAYER_RADIUS:    #Restricts the player from moving of the left side of the screen
+        if  player_pos.x < PLAYER_RADIUS:    #Restricts the player from moving of the left side of the screen
             player_pos.x = PLAYER_RADIUS
         if player_pos.x > screen.get_width() - PLAYER_RADIUS:   #Restricts the player from moving of the right side of the screen
             player_pos.x = screen.get_width() - PLAYER_RADIUS
@@ -193,11 +192,27 @@ def main():
             player_pos.y = PLAYER_RADIUS
         if player_pos.y > screen.get_height() - PLAYER_RADIUS: #Restricts the player from moving of the bottom of the screen
             player_pos.y = screen.get_height() - PLAYER_RADIUS
+        
+        #Borders for player 2
+        if  player2_pos.x < PLAYER_RADIUS:   
+            player2_pos.x = PLAYER_RADIUS
+        if player2_pos.x > screen.get_width() - PLAYER_RADIUS:   
+            player2_pos.x = screen.get_width() - PLAYER_RADIUS
+        if player2_pos.y < PLAYER_RADIUS: 
+            player2_pos.y = PLAYER_RADIUS
+        if player2_pos.y > screen.get_height() - PLAYER_RADIUS: 
+            player2_pos.y = screen.get_height() - PLAYER_RADIUS
+        
+
 
         # Keeps the box centered over the character
         if player_one_box:
             player_one_box["rect"].x = player_pos.x - player_one_box["rect"].width // 2
             player_one_box["rect"].y = player_pos.y - player_one_box["rect"].height - 10
+        if player_two_box:
+            player_two_box["rect"].x = player2_pos.x - player_two_box["rect"].width // 2
+            player_two_box["rect"].y = player2_pos.y - player_two_box["rect"].height - 10
+        
 
 
                  
