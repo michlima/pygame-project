@@ -12,11 +12,12 @@ def drawRectBorders(screen,color ,rect):
 def all_text(font_file, font_size, text, true_or_false, t_color): # one function to handle all texts
     text_font = pygame.font.Font(font_file, font_size) # font file and size
     text_surface = text_font.render(text, true_or_false, t_color) # content and color
-    
+    return text_surface # return the rendered text surface
+
 def all_buttons(screen, button_rect_shape, text, font_file, font_size, button_color, text_color):
     pygame.draw.rect(screen, button_color, button_rect_shape) # create a button
     button_text = all_text(font_file, font_size, text, True, text_color) # add text to the button
-    screen.built(
+    screen.blit(
         button_text , 
         (
             button_rect_shape.x + (button_rect_shape.width - button_text.get_width()) / 2 ,
@@ -27,7 +28,7 @@ def all_buttons(screen, button_rect_shape, text, font_file, font_size, button_co
     mouse_position = pygame.mouse.get_pos() # get current mouse position
     mouse_clicked = pygame.mouse.get_pressed() # get mouse click status
 
-    if button_rect_shape.collidepoing(mouse_position) and mouse_clicked[0]:
+    if button_rect_shape.collidepoint(mouse_position) and mouse_clicked[0]:
         return True # return True if the button is clicked
     else: 
         return False
