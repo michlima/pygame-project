@@ -144,7 +144,7 @@ def main():
     screen = pygame.display.set_mode((1280, 720))
     clock = pygame.time.Clock()
 
-    main_menu(screen)
+    main_menu(screen) #calling main menu function
 
     dt, count, running, queuedBoxes = 0 , 100, True, []
 
