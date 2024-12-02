@@ -101,10 +101,51 @@ def drawScreenObjects(screen):
     drawConveyer(screen, 0,0,"blue",100,screen.get_height())
     drawDropOffs(screen)
 
+def main_menu(screen):#to create a main menu
+    clock = pygame.time.Clock()#get framerate
+    while True: #main menu shows until player click to start or quit game
+        screen.fill("lightgray") #the background color of main menu
+        
+        #to make a title
+        title_text = all_text(None, 150, "BOX MASTER", True, "purple")
+        screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 100))
+
+        #to add start button
+        start_button = pygame.Rect(screen.get_width() / 2 - 100, 350, 200, 60)
+        start_button_clicked = all_buttons(screen, start_button, "Start", None, 40, "darkgreen", "white")
+
+        #to add help & pause button
+        help_pause_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
+        help_pause_button_clicked = all_buttons(screen, help_pause_button, "How to play", None, 40, "orange", "white")
+
+        #to add quit button
+        quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
+        quit_button_clicked = all_buttons(screen, quit_button, "Quit", None, 40, "red", "white")
+
+
+        if start_button_clicked: #click to start the game
+            break #the main menu function breaks and the game starts
+
+        if quit_button_clicked: #click to quit the game
+            pygame.quit()
+            exit()
+
+        pygame.display.flip() #render display & buttons
+
+        clock.tick(60) #limiting framerate to 60 in main menu
+
+        for event in pygame.event.get(): #make sure the game quits when the user closes the entire window
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
     clock = pygame.time.Clock()
+
+    main_menu(screen)
+
     dt, count, running, queuedBoxes = 0 , 100, True, []
 
     player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)    # defines player position
@@ -127,7 +168,7 @@ def main():
             boxColors = ["orange","green","cyan","pink","purple","brown","gray"]
 
             randomPoints = random.randrange(1,4,1)
-            box_is_bomb = random.random() < 0.1 #10% chance of bomb
+            box_is_bomb = random.random() < 0.2 #20% chance of bomb
             queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":random.choice(boxColors), "box_is_bomb": box_is_bomb})
             count = 0
         
