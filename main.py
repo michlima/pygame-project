@@ -65,7 +65,7 @@ def pickBox(queuedBoxes, player_pos):
     return {"newQueue": newBoxes, "boxPicked": removedBox}
 
 def drawDropOffs(screen):
-    colors = ["orange","green","cyan","pink","purple","brown","gray"]
+    colors = ["orange","green","cyan","pink","purple","brown","black"]
     y = 25
     for color in colors:
         drawRectBorders(screen, color,((screen.get_width() - 75,y,55,55)))
@@ -78,7 +78,7 @@ def dropBox(screen,playerOne, playerPosition,box):
     x, y = 25, screen.get_height() / 2 - 175
     if playerOne == False:
         x = screen.get_width() - 75
-    boxColors = ["orange","green","cyan","pink","purple","brown","gray"]
+    boxColors = ["orange","green","cyan","pink","purple","brown","black"]
 
     dropOffs = []
     locationY = -35
