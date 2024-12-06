@@ -165,7 +165,7 @@ def main():
 
         # creates boxes every 100 count
         if count > 100 :
-            boxColors = ["orange","green","cyan","pink","purple","brown","gray"]
+            boxColors = ["orange","green","cyan","pink","purple","brown"]
 
             randomPoints = random.randrange(1,4,1)
             box_is_bomb = random.random() < 0.2 #20% chance of bomb
