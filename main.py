@@ -184,6 +184,9 @@ def main():
     playerImage = pygame.image.load("sprites/player/sprite_0.png")
     playerImageTwo = pygame.image.load("sprites/player/sprite_1.png")
 
+    playerTwoImage = pygame.image.load("sprites/player/sprite_2.png")
+    playerTwoImageTwo = pygame.image.load("sprites/player/sprite_3.png")
+
     player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)
     player2_pos = pygame.Vector2(screen.get_width() / 1.5, screen.get_height() / 2)
 
@@ -266,11 +269,12 @@ def main():
         # pygame.draw.circle(screen, "purple", player_pos, 40)
         if playerAnimationToggle:
             screen.blit(playerImage, (player_pos.x, player_pos.y))
+            screen.blit(playerTwoImage, (player2_pos.x, player2_pos.y))
         else:
             screen.blit(playerImageTwo, (player_pos.x, player_pos.y))
+            screen.blit(playerTwoImageTwo, (player2_pos.x, player2_pos.y))
         
         
-        pygame.draw.circle(screen, "green", player2_pos, 40)
 
 
         if(player_one_box):
