@@ -126,6 +126,7 @@ def main_menu(screen):#to create a main menu
         if start_button_clicked: #click to start the game
             break #the main menu function breaks and the game starts
 
+
         if quit_button_clicked: #click to quit the game
             pygame.quit()
             exit()
@@ -139,12 +140,14 @@ def main_menu(screen):#to create a main menu
                 pygame.quit()
                 exit()
 
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
     clock = pygame.time.Clock()
-
-    main_menu(screen) #calling main menu function
+    
+    main_menu(screen)
 
     dt, count, running, queuedBoxes = 0 , 100, True, []
 
@@ -155,6 +158,7 @@ def main():
     player_two_box = False # defines box player two is holding
 
     PLAYER_RADIUS = 40  # Defining the Size of the player
+        
 
     # while game is running
     while running:
