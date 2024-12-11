@@ -2,6 +2,13 @@ import pygame
 import random
 import time #add timer
 
+test = pygame.image.load('sprites/boxes/sprite_1.png')
+# boxColors = ["orange","green","cyan","pink","purple","brown","black"]
+boxesImgs = {"orange": pygame.image.load('sprites/boxes/sprite_0.png'),"green": pygame.image.load('sprites/boxes/sprite_1.png'),"cyan": pygame.image.load('sprites/boxes/sprite_2.png'),"red": pygame.image.load('sprites/boxes/sprite_3.png'),"purple": pygame.image.load('sprites/boxes/sprite_4.png'),"yellow": pygame.image.load('sprites/boxes/sprite_5.png')}
+dropoffImgs = {"orange": pygame.image.load('sprites/dropoffs/dropoff_orange.png'),"green": pygame.image.load('sprites/dropoffs/dropoff_green.png'),"cyan": pygame.image.load('sprites/dropoffs/dropoff_blue.png'),"red": pygame.image.load('sprites/dropoffs/dropoff_red.png'),"purple": pygame.image.load('sprites/dropoffs/dropoff_purple.png'),"yellow": pygame.image.load('sprites/dropoffs/dropoff_yellow.png'), "black": pygame.image.load('sprites/dropoffs/dropff_bomb.png') }
+conveyerImgs = {"img1": pygame.image.load('sprites/conveyer/conveyer_0.png'), "img2:": pygame.image.load('sprites/conveyer/conveyer_1.png')}
+
+
 def drawConveyer(screen,x,y,color, w,h):
     #                                                        xAxis              y  width height
     pygame.draw.rect(screen, color, pygame.Rect(x, y, w,h))
@@ -34,14 +41,12 @@ def all_buttons(screen, button_rect_shape, text, font_file, font_size, button_co
         return False
 
     
-
-
 def conveyBoxes(queuedBoxes, screen):
     conveyerVelocity = pygame.math.Vector2(1, 1)
     for box in queuedBoxes:
         box["rect"].y += int(conveyerVelocity.y)
-        # draw boxes on scree
-        pygame.draw.rect(screen,box["color"], box["rect"])    
+        # draw boxes on screen 
+        screen.blit(box["image"],(box["rect"].x, box["rect"].y))
 
 def pickBox(queuedBoxes, player_pos):
     removedBox = False
@@ -56,20 +61,23 @@ def pickBox(queuedBoxes, player_pos):
             removedBox = queuedBoxes[box]
             if removedBox["box_is_bomb"]:
                 removedBox["color"] = "black" # bomb boxes turn black after pick up
+                removedBox["image"] = pygame.image.load('sprites/boxes/sprite_6.png')
                 removedBox["pickup_time"] = time.time() # bomb takes action after a timeframe
 
             newBoxes.pop(indexRemoved)
-            removedBox["rect"].y = player_pos.y - 50
-            removedBox["rect"].x = player_pos.x
+            removedBox["rect"].y = player_pos.y - 10
+            removedBox["rect"].x = player_pos.x + 20
             break
     return {"newQueue": newBoxes, "boxPicked": removedBox}
 
 def drawDropOffs(screen):
-    colors = ["orange","green","cyan","pink","purple","brown","black"]
+    colors = ["orange","green","cyan","red","purple","yellow","black"]
     y = 25
     for color in colors:
-        drawRectBorders(screen, color,((screen.get_width() - 75,y,55,55)))
-        drawRectBorders(screen, color,((25,y,55,55)))
+        screen.blit(dropoffImgs[color], (screen.get_width() - 75, y))
+        # drawRectBorders(screen, color,((screen.get_width() - 75,y,55,55)))
+        screen.blit(dropoffImgs[color], (25, y))
+
         y = y +100
 
 
@@ -78,7 +86,7 @@ def dropBox(screen,playerOne, playerPosition,box):
     x, y = 25, screen.get_height() / 2 - 175
     if playerOne == False:
         x = screen.get_width() - 75
-    boxColors = ["orange","green","cyan","pink","purple","brown","black"]
+    boxColors = ["orange","green","cyan","red","purple","yellow","black"]
 
     dropOffs = []
     locationY = -35
@@ -94,11 +102,17 @@ def dropBox(screen,playerOne, playerPosition,box):
 
     return False
 
-    
-def drawScreenObjects(screen):
-    drawConveyer(screen, screen.get_width() / 2 - 50,0,"red",100,screen.get_height())
-    drawConveyer(screen, screen.get_width() - 100, 0 ,"blue",100,screen.get_height())
-    drawConveyer(screen, 0,0,"blue",100,screen.get_height())
+conveyerSwitch = True 
+def drawScreenObjects(screen,conveyerSwitch):
+    conveyerImg = pygame.image.load('sprites/conveyer/conveyer_0.png')
+    tableImg = pygame.image.load("sprites/table/table.png")
+    if(not conveyerSwitch):
+        conveyerImg = pygame.image.load('sprites/conveyer/conveyer_1.png')
+
+    # drawConveyer(screen, screen.get_width() / 2 - 50,0,"red",100,screen.get_height())
+    screen.blit(conveyerImg,(screen.get_width() / 2 - 50,0))
+    screen.blit(tableImg,(screen.get_width() - 100, 0))
+    screen.blit(tableImg,(0, 0))
     drawDropOffs(screen)
 
 def main_menu(screen):#to create a main menu
@@ -141,12 +155,16 @@ def main_menu(screen):#to create a main menu
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((1280, 700))
     clock = pygame.time.Clock()
 
     main_menu(screen) #calling main menu function
 
     dt, count, running, queuedBoxes = 0 , 100, True, []
+    playerAnimationToggle = True
+    
+    playerImage = pygame.image.load("sprites/player/sprite_0.png")
+    playerImageTwo = pygame.image.load("sprites/player/sprite_1.png")
 
     player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)    # defines player position
     player2_pos = pygame.Vector2(screen.get_width() / 1.5, screen.get_height() / 2) # defines player position
@@ -155,21 +173,29 @@ def main():
     player_two_box = False # defines box player two is holding
 
     PLAYER_RADIUS = 40  # Defining the Size of the player
-
+    conveyerSwitch = True
     # while game is running
     while running:
         screen.fill("white")
         ## draw coveyer table
-        drawScreenObjects(screen)
+        
+        drawScreenObjects(screen, conveyerSwitch)
         count +=1 # count to send new boxes in conveyer
+        #conveyer animation
+        if count % 13 == 0:
+            conveyerSwitch = not conveyerSwitch
+            playerAnimationToggle = not playerAnimationToggle
 
+        #player animation
+
+        
         # creates boxes every 100 count
         if count > 100 :
-            boxColors = ["orange","green","cyan","pink","purple","brown"]
-
+            boxColors = ["orange","green","cyan","red","purple","yellow"]
             randomPoints = random.randrange(1,4,1)
-            box_is_bomb = random.random() < 0.2 #20% chance of bomb
-            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 25, -50, 55, 55), "points": randomPoints,"color":random.choice(boxColors), "box_is_bomb": box_is_bomb})
+            box_is_bomb =  random.random() < 0.2 #20% chance of bomb
+            boxColor = random.choice(boxColors)
+            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 32, 0, 55, 55), "points": randomPoints,"color": boxColor, "box_is_bomb": box_is_bomb,"image":boxesImgs[boxColor]})
             count = 0
         
                 
@@ -185,13 +211,13 @@ def main():
                         if(boxDropped):
                             # What happens when player drops box off
                             player_one_box = False
-                    else: # if player is NOT holding box then drop box 
+                    else: # if player is NOT holding box then pick box 
                         newBoxes = pickBox(queuedBoxes, player_pos)
                         queuedBoxes = newBoxes["newQueue"]
                         if newBoxes["boxPicked"] != False:
                             player_one_box = newBoxes["boxPicked"]
-                            player_one_box["rect"].y = player_pos.y - 100
-                            player_one_box["rect"].x = player_pos.x - 30
+                            player_one_box["rect"].y = player_pos.y
+                            player_one_box["rect"].x = player_pos.x 
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SLASH:
@@ -209,18 +235,25 @@ def main():
             if current_time - player_one_box["pickup_time"] > 4:
                 #print("Bomb")#this can be replaced with visual and sound effects
                 player_one_box = False
+
         # draw and move boxes on conveyer
         conveyBoxes(queuedBoxes, screen)
         
         # Draw player position
-        pygame.draw.circle(screen, "purple", player_pos, 40)
+        # pygame.draw.circle(screen, "purple", player_pos, 40)
+        if playerAnimationToggle:
+            screen.blit(playerImage, (player_pos.x, player_pos.y))
+        else:
+            screen.blit(playerImageTwo, (player_pos.x, player_pos.y))
+        
+        
         pygame.draw.circle(screen, "green", player2_pos, 40)
 
 
         if(player_one_box):
-            pygame.draw.rect(screen, player_one_box["color"], player_one_box["rect"])
+            screen.blit(player_one_box["image"],(player_one_box["rect"].x + 30 , player_one_box["rect"].y ))
         if(player_two_box):
-            pygame.draw.rect(screen, player_two_box["color"], player_two_box["rect"])
+            screen.blit(player_two_box["image"],(player_two_box["rect"].x, player_two_box["rect"].y))
             
             
         if(len(queuedBoxes) > 8):
@@ -233,7 +266,7 @@ def main():
             if player_one_box != False:
                 player_one_box["rect"].y -= 3
         if keys[pygame.K_s]:
-            player_pos.y += 3
+            player_pos.y += 3   
             if player_one_box != False:
                 player_one_box["rect"].y += 3
         if keys[pygame.K_a]: 
@@ -243,7 +276,6 @@ def main():
         if keys[pygame.K_d]:
             player_pos.x += 3
             if player_one_box != False:
-
                 player_one_box["rect"].x += 3  
         if keys[pygame.K_UP]:
             player2_pos.y -= 3
