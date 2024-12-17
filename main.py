@@ -55,7 +55,7 @@ def pickBox(queuedBoxes, player_pos):
     for box in range(len(queuedBoxes)):
         x_diff = abs(player_pos.x - queuedBoxes[box]["rect"].x)
         y_diff = abs(player_pos.y - queuedBoxes[box]["rect"].y)
-        if x_diff < 80 and y_diff < 50:
+        if x_diff < 100 and y_diff < 50:
             indexRemoved = box
             removedBox = queuedBoxes[box]
             if removedBox["box_is_bomb"]:
@@ -82,20 +82,19 @@ def drawDropOffs(screen):
         y = y +100
 
 def dropBox(screen, playerOne, playerPosition, box):
-    x, y = 25, screen.get_height() / 2 - 175
+    x = 25
     if playerOne == False:
-        x = screen.get_width() - 75
+        x = screen.get_width() - 85
 
     boxColors = ["orange","green","cyan","red","purple","yellow","black"]
-
     dropOffs = []
-    locationY = -35
+    locationY = -50
     for color in boxColors:
         dropOffs.append({"location": locationY, "color": color})
         locationY = locationY + 100
-
     for dropOff in dropOffs:
-        if abs(playerPosition.x - x) < 200 and abs(playerPosition.y - dropOff["location"] - 100) < 35:
+        print(abs(playerPosition.x - x))
+        if abs(playerPosition.x - x) < 100 and abs(playerPosition.y - dropOff["location"] - 100) < 35:
             if dropOff["color"] == box["color"]:
                 return box["points"]  # Return the points when box is dropped in the correct place
 
@@ -245,8 +244,10 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SLASH:
                     if player_two_box:
-                        boxDroppedPoints = dropBox(screen, True, player2_pos, player_two_box)
+                        boxDroppedPoints = dropBox(screen, False, player2_pos, player_two_box)
                         player_two_score += boxDroppedPoints  # Add points if box is dropped
+                        if boxDroppedPoints > 0:
+                            player_two_box = False
                     else:
                         newBoxes = pickBox(queuedBoxes, player2_pos)
                         queuedBoxes = newBoxes["newQueue"]
@@ -280,7 +281,7 @@ def main():
         if(player_one_box):
             screen.blit(player_one_box["image"],(player_one_box["rect"].x + 30 , player_one_box["rect"].y ))
         if(player_two_box):
-            screen.blit(player_two_box["image"],(player_two_box["rect"].x, player_two_box["rect"].y))
+            screen.blit(player_two_box["image"],(player_two_box["rect"].x + 30, player_two_box["rect"].y))
             
             
         if(len(queuedBoxes) > 8):
@@ -288,69 +289,53 @@ def main():
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
-            player_pos.y -= 3
+            if(player_pos.y > 5): # enforces borders
+                player_pos.y -= 3
             if player_one_box != False:
                 player_one_box["rect"].y -= 3
         if keys[pygame.K_s]:
-            player_pos.y += 3   
+            if(player_pos.y < 625): # enforces borders
+                player_pos.y += 3   
             if player_one_box != False:
                 player_one_box["rect"].y += 3
         if keys[pygame.K_a]:
-            player_pos.x -= 3
+            if(player_pos.x > 110): # enforces borders
+                player_pos.x -= 3
             if player_one_box != False:
                 player_one_box["rect"].x -= 3
         if keys[pygame.K_d]:
-            player_pos.x += 3
+            if(player_pos.x < 515): # enforces borders
+                player_pos.x += 3
             if player_one_box != False:
 
                 player_one_box["rect"].x += 3  
                 
         if keys[pygame.K_UP]:
-            player2_pos.y -= 3
+            if(player2_pos.y > 5): # enforces borders
+                player2_pos.y -= 3
             if player_two_box != False:
                 player_two_box["rect"].y -= 3
         if keys[pygame.K_DOWN]:
-            player2_pos.y += 3
+            if(player2_pos.y < 625): # enforces borders
+                player2_pos.y += 3   
             if player_two_box != False:
                 player_two_box["rect"].y += 3
         if keys[pygame.K_LEFT]:
-            player2_pos.x -= 3
+            if(player2_pos.x > 700): # enforces borders
+                player2_pos.x -= 3
             if player_two_box != False:
                 player_two_box["rect"].x -= 3
         if keys[pygame.K_RIGHT]:
-            player2_pos.x += 3
+            if(player2_pos.x < 1100): # enforces borders
+                player2_pos.x += 3
             if player_two_box != False:
 
                 player_two_box["rect"].x += 3                      
 
         if player_pos.x > screen.get_width() / 2 - 50 - PLAYER_RADIUS:
             player_pos.x = screen.get_width() / 2 - 50 - PLAYER_RADIUS
-
-        if player_pos.x < 50 + 100 + PLAYER_RADIUS:
-            player_pos.x = 50 + 100 + PLAYER_RADIUS
-
-        if  player_pos.x < PLAYER_RADIUS:    #Restricts the player from moving of the left side of the screen
-            player_pos.x = PLAYER_RADIUS
-        if player_pos.x > screen.get_width() - PLAYER_RADIUS:  # Restricts the player from moving off the right side of the screen
-            player_pos.x = screen.get_width() - PLAYER_RADIUS
-        if player_pos.y < PLAYER_RADIUS:  # Restricts the player from moving off the top of the screen
-            player_pos.y = PLAYER_RADIUS
-        if player_pos.y > screen.get_height() - PLAYER_RADIUS:  # Restricts the player from moving off the bottom of the screen
-            player_pos.y = screen.get_height() - PLAYER_RADIUS
         
-        
-
-        if player2_pos.x < 200 + 100 + PLAYER_RADIUS:
-            player2_pos.x = 50 + 100 + PLAYER_RADIUS
-        #Borders for player 2
-        if  player2_pos.x < PLAYER_RADIUS:   
-            player2_pos.x = PLAYER_RADIUS
-        if player2_pos.x > screen.get_width() - PLAYER_RADIUS:   
-            player2_pos.x = screen.get_width() - PLAYER_RADIUS
-        if player2_pos.y < PLAYER_RADIUS: 
-            player2_pos.y = PLAYER_RADIUS
-        if player2_pos.y > screen.get_height() - PLAYER_RADIUS: 
-            player2_pos.y = screen.get_height() - PLAYER_RADIUS
+    
         
 
 
