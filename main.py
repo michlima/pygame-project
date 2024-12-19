@@ -140,12 +140,8 @@ def main_menu(screen):#to create a main menu
         screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 100))
 
         #to add start button
-        start_button = pygame.Rect(screen.get_width() / 2 - 100, 350, 200, 60)
-        start_button_clicked = all_buttons(screen, start_button, "Start", None, 40, "darkgreen", "white")
-
-        #to add help & pause button
-        help_pause_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
-        help_pause_button_clicked = all_buttons(screen, help_pause_button, "How to play", None, 40, "orange", "white")
+        start_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
+        start_button_clicked = all_buttons(screen, start_button, "New Game", None, 40, "darkgreen", "white")
 
         #to add quit button
         quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
@@ -153,10 +149,9 @@ def main_menu(screen):#to create a main menu
 
 
         if start_button_clicked: #click to start the game
-            break #the main menu function breaks and the game starts
+             break #the main menu function breaks and the game starts
 
-
-        if quit_button_clicked: #click to quit the game
+        if quit_button_clicked:
             pygame.quit()
             exit()
 
@@ -171,11 +166,45 @@ def main_menu(screen):#to create a main menu
 
 
 
+
+def pause_menu(screen):#created a pause menu
+    clock = pygame.time.Clock()
+    while True:
+        screen.fill("lightgray")
+
+        pause_text = all_text(None, 150, "PAUSED", True, "blue")#to display text on pause menu
+        screen.blit(pause_text, ((screen.get_width() - pause_text.get_width()) / 2, 100))
+
+        resume_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)#added resume button
+        resume_button_clicked = all_buttons(screen, resume_button, "Resume", None, 40, "darkgreen", "white")
+
+        #to add quit button
+        quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
+        quit_button_clicked = all_buttons(screen, quit_button, "Quit", None, 40, "red", "white")
+
+        if resume_button_clicked:
+            break
+
+        if quit_button_clicked:
+            pygame.quit()
+            exit()
+            
+        pygame.display.flip()
+        clock.tick(60)
+
+        for event in pygame.event.get(): #make sure the game quits when the user closes the entire window
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1280, 700))
     clock = pygame.time.Clock()
-    main_menu(screen)
+    main_menu(screen)#call main menu
+    paused = False #to call pause menu later
+    running = True
 
     dt, count, running, queuedBoxes = 0 , 100, True, []
     playerAnimationToggle = True
@@ -202,7 +231,7 @@ def main():
     while running:
         screen.fill("white")
         ## draw coveyer table
-        
+
         drawScreenObjects(screen, conveyerSwitch)
         count +=1 # count to send new boxes in conveyer
         #conveyer animation
@@ -223,6 +252,13 @@ def main():
             count = 0
 
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN: #press P to call pause menu
+                if event.key == pygame.K_p:
+                   # paused = True
+                    pause_menu(screen)
+                        
+                    
+
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
@@ -255,7 +291,7 @@ def main():
                             player_two_box = newBoxes["boxPicked"]
                             player_two_box["rect"].y = player2_pos.y - 100
                             player_two_box["rect"].x = player2_pos.x - 30
-
+                            
         if player_one_box and "box_is_bomb" in player_one_box and player_one_box["box_is_bomb"]:
             current_time = time.time()
             if current_time - player_one_box["pickup_time"] > 4:
@@ -352,6 +388,9 @@ def main():
         font = pygame.font.SysFont(None, 36)
         score_text = font.render(f"Player 1 Score: {player_one_score}  Player 2 Score: {player_two_score}", True, (0, 0, 0))
         screen.blit(score_text, (10, 10))
+
+        pause_text = all_text(None, 36, "Press P to pause", True, "black")
+        screen.blit(pause_text, (screen.get_width() - pause_text.get_width() - 120, 650))
 
         # flip() the display to put your work on screen
         pygame.display.flip()
