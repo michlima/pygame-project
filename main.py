@@ -99,10 +99,10 @@ def dropBox(screen, playerOne, playerPosition, box):
                 return box["points"]  # Return the points when box is dropped in the correct place
 
     return 0  # No points if box is not dropped in the correct place
-
-# New Function: Bomb Explosion Effect ---
+ 
+# Bomb Explosion Effect ---
 def handleBombExplosion(screen, bomb_box, player_pos):
-    # Highlighted: Bomb explosion effect
+    #  Bomb explosion effect
     if bomb_box:
         # Explosion Effect: Flash the screen red
         pygame.draw.circle(screen, (255, 0, 0), bomb_box["rect"].center, 50)
