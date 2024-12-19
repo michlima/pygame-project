@@ -143,7 +143,7 @@ def main_menu(screen):#to create a main menu
         start_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
         start_button_clicked = all_buttons(screen, start_button, "New Game", None, 40, "darkgreen", "white")
 
-        #to add quit button
+        
         quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
         quit_button_clicked = all_buttons(screen, quit_button, "Quit", None, 40, "red", "white")
 
@@ -202,10 +202,14 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((1280, 700))
     clock = pygame.time.Clock()
+
     main_menu(screen)#call main menu
     paused = False #to call pause menu later
     running = True
-
+    pygame.mixer.music.load("BEAT.mp3")  # Replace with the correct path to your music file
+    pygame.mixer.music.set_volume(0.5)  # Set the volume (optional)
+    pygame.mixer.music.play(-1, 0.0)  # Loop the music indefinitely
+  
     dt, count, running, queuedBoxes = 0 , 100, True, []
     playerAnimationToggle = True
     
@@ -229,7 +233,7 @@ def main():
     conveyerSwitch = True
     # while game is running
     while running:
-        screen.fill("white")
+        screen.fill("skyblue")
         ## draw coveyer table
 
         drawScreenObjects(screen, conveyerSwitch)
