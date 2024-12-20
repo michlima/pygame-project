@@ -192,6 +192,37 @@ def pause_menu(screen):#created a pause menu
                 exit()
 
 
+def gameEnd(screen, winner, playerImage):
+    clock = pygame.time.Clock()#get framerate
+    while True:
+        screen.fill("pink")
+        screen.blit(playerImage, (screen.get_width()/2 - 30, screen.get_height() / 2 - 50 ))
+        title_text = all_text(None, 150, winner + " WINS!", True, "orange")
+        screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 100))
+
+        newGame_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
+        newGame_button_clicked = all_buttons(screen, newGame_button, "New Game", None, 40, "red", "white")
+
+        quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
+        quit_button_clicked = all_buttons(screen, quit_button, "Quit", None, 40, "red", "white")
+
+        if quit_button_clicked:
+            pygame.quit()
+            exit()
+            
+        if newGame_button_clicked:
+            return True
+
+        pygame.display.flip()
+        clock.tick(60)
+
+        for event in pygame.event.get(): #make sure the game quits when the user closes the entire window
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+
+
 def inGame(screen, playing):
     screen = pygame.display.set_mode((1280, 700))
     
@@ -233,6 +264,16 @@ def inGame(screen, playing):
     conveyerSwitch = True
     # while game is running
     while running:
+        if(player_one_score > 1 or player_two_score > 30):
+            if(player_one_score > player_two_score):
+                restart = gameEnd(screen, "PLAYER ONE", playerImage)
+                if(restart):
+                    running = False
+            if(player_one_score < player_two_score):
+                restart = gameEnd(screen, "PLAYER TWO", playerTwoImage)
+                if(restart):
+                    running = False
+            
         screen.fill("skyblue")
         ## draw coveyer table
         drawScreenObjects(screen, conveyerSwitch)
@@ -314,7 +355,7 @@ def inGame(screen, playing):
                             player_one_box["rect"].x = player_pos.x 
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SLASH:
+                if event.key == pygame.K_RETURN:
                     if player_two_box:
                         boxDroppedPoints = dropBox(screen, False, player2_pos, player_two_box)
                         player_two_score += boxDroppedPoints  # Add points if box is dropped
