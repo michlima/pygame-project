@@ -118,8 +118,6 @@ def handleBombExplosion(screen, bomb_box):
     return False
 
 
-
-
 conveyerSwitch = True 
 
 def drawScreenObjects(screen,conveyerSwitch):
@@ -136,6 +134,7 @@ def drawScreenObjects(screen,conveyerSwitch):
 
 def main_menu(screen):#to create a main menu
     clock = pygame.time.Clock()#get framerate
+    
     while True: #main menu shows until player click to start or quit game
         screen.fill("lightgray") #the background color of main menu
         
@@ -161,8 +160,7 @@ def main_menu(screen):#to create a main menu
 
 
         if quit_button_clicked: #click to quit the game
-            pygame.quit()
-            exit()
+            return True
 
         pygame.display.flip() #render display & buttons
 
@@ -170,18 +168,12 @@ def main_menu(screen):#to create a main menu
 
         for event in pygame.event.get(): #make sure the game quits when the user closes the entire window
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                return True
 
 
-
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((1280, 700))
+def inGame(screen, gameRunning):
     clock = pygame.time.Clock()
-    main_menu(screen)
-
-    dt, count, running, queuedBoxes = 0 , 100, True, []
+    dt, count, running, queuedBoxes = 0 , 100, gameRunning, []
     playerAnimationToggle = True
     
     playerImage = pygame.image.load("sprites/player/sprite_0.png")
@@ -252,7 +244,7 @@ def main():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                return True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     if player_one_box:
@@ -311,8 +303,7 @@ def main():
             # Display player scores
         font = pygame.font.SysFont(None, 36)
         player_one_score_text = font.render(f"Player 1: {player_one_score}", True, (0, 0, 0))
-        player_two_score_text = font.render(f"Player 2: {player_two_score}", True, (0, 0, 0))
- # Position scores
+        player_two_score_text = font.render(f"Player 2: {player_two_score}", True, (0, 0, 0)) # Position scores
         pygame.draw.rect(screen, (255, 255, 255), (screen.get_width() // 4 - player_one_score_text.get_width() // 2 - 10, 5, player_one_score_text.get_width() + 20, 30))
         pygame.draw.rect(screen, (255, 255, 255), (3 * screen.get_width() // 4 - player_two_score_text.get_width() // 2 - 10, 5, player_two_score_text.get_width() + 20, 30))
         # Position scores
@@ -370,10 +361,6 @@ def main():
         if player_pos.x > screen.get_width() / 2 - 50 - PLAYER_RADIUS:
             player_pos.x = screen.get_width() / 2 - 50 - PLAYER_RADIUS
         
-    
-        
-
-
         # Keeps the box centered over the character
         if player_one_box:
             player_one_box["rect"].x = player_pos.x - player_one_box["rect"].width // 2
@@ -389,6 +376,24 @@ def main():
         # limits FPS to 60
         dt = clock.tick(100) / 1000
 
+
+def main():
+    #SESSIONS : 1. In Game || 2. Main Menu
+    pygame.init()
+    screen = pygame.display.set_mode((1280, 700))
+    running = True # Game is running
+    playing = True # Player is playing game
+    while(running):
+        playing = not playing # switches from main menu to in game every time a session ends
+        if playing:
+            exit = inGame(screen, playing)
+            if(exit):
+                pygame.quit()
+        else:
+            exit = main_menu(screen)
+            if(exit):
+                pygame.quit()
+        
     pygame.quit()
 
 
