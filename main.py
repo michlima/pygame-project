@@ -10,26 +10,26 @@ boxesImgs = {"orange": pygame.image.load('sprites/boxes/sprite_0.png'),"green": 
 #images for dropoffs
 dropoffImgs = {"orange": pygame.image.load('sprites/dropoffs/dropoff_orange.png'),"green": pygame.image.load('sprites/dropoffs/dropoff_green.png'),"cyan": pygame.image.load('sprites/dropoffs/dropoff_blue.png'),"red": pygame.image.load('sprites/dropoffs/dropoff_red.png'),"purple": pygame.image.load('sprites/dropoffs/dropoff_purple.png'),"yellow": pygame.image.load('sprites/dropoffs/dropoff_yellow.png'), "black": pygame.image.load('sprites/dropoffs/dropff_bomb.png') }
 
-def all_text(font_file, font_size, text, true_or_false, t_color): # one function to handle all texts
-    textFont = pygame.font.Font(font_file, font_size) # font file and size
-    text_surface = textFont.render(text, true_or_false, t_color) # content and color
-    return text_surface # return the rendered text surface
+def allText(fontFile, fontSize, text, trueOrFalse, tColor): # one function to handle all texts
+    textFont = pygame.font.Font(fontFile, fontSize) # font file and size
+    textSurface = textFont.render(text, trueOrFalse, tColor) # content and color
+    return textSurface # return the rendered text surface
 
-def all_buttons(screen, button_rect_shape, text, font_file, font_size, button_color, text_color): # one function to handle all buttons
-    pygame.draw.rect(screen, button_color, button_rect_shape) # create a button
-    button_text = all_text(font_file, font_size, text, True, text_color) # add text to the button
+def allButtons(screen, buttonRectShape, text, fontFile, fontSize, buttonColor, textColor): # one function to handle all buttons
+    pygame.draw.rect(screen, buttonColor, buttonRectShape) # create a button
+    buttonText = allText(fontFile, fontSize, text, True, textColor) # add text to the button
     screen.blit(
-        button_text , 
+        buttonText , 
         (
-            button_rect_shape.x + (button_rect_shape.width - button_text.get_width()) / 2 ,
-            button_rect_shape.y + (button_rect_shape.height - button_text.get_height()) / 2,
+            buttonRectShape.x + (buttonRectShape.width - buttonText.get_width()) / 2 ,
+            buttonRectShape.y + (buttonRectShape.height - buttonText.get_height()) / 2,
         ),
     ) # put the text in the center of the button
 
-    mouse_position = pygame.mouse.get_pos() # get current mouse position
-    mouse_clicked = pygame.mouse.get_pressed() # get mouse click status
+    mousePosition = pygame.mouse.get_pos() # get current mouse position
+    mouseClicked = pygame.mouse.get_pressed() # get mouse click status
 
-    if button_rect_shape.collidepoint(mouse_position) and mouse_clicked[0]:
+    if buttonRectShape.collidepoint(mousePosition) and mouseClicked[0]:
         return True # return True if the button is clicked
     else: 
         return False
@@ -43,25 +43,25 @@ def conveyBoxes(queuedBoxes, screen):
         screen.blit(box["image"],(box["rect"].x, box["rect"].y))
         
 
-def pickBox(queuedBoxes, player_pos):
+def pickBox(queuedBoxes, playerOnePos):
     removedBox = False # default is no box was removed
     boxesInQueue = queuedBoxes # copies boxes in queue in order to later remove one box from list
 
     for box in range(len(queuedBoxes)): # loops through boxes in queue (loop by index)
-        x_diff = abs(player_pos.x - queuedBoxes[box]["rect"].x) # calculates how close player is to box in the x dimension
-        y_diff = abs(player_pos.y - queuedBoxes[box]["rect"].y) # calculates how close player is to box in the y dimension
-        if x_diff < 100 and y_diff < 50: # if players is 100pixels close (x dimension) and  50 pixels close (y dimension) then player picks box
+        xDiff = abs(playerOnePos.x - queuedBoxes[box]["rect"].x) # calculates how close player is to box in the x dimension
+        yDiff = abs(playerOnePos.y - queuedBoxes[box]["rect"].y) # calculates how close player is to box in the y dimension
+        if xDiff < 100 and yDiff < 50: # if players is 100pixels close (x dimension) and  50 pixels close (y dimension) then player picks box
             indexRemoved = box # 'box' variable is the index (sinces loop is set to the range of the length of queued boxes)
             removedBox = queuedBoxes[box] # get's box to be removed by index
-            if removedBox["box_is_bomb"]: # runs if a box is a bomb
+            if removedBox["boxIsBomb"]: # runs if a box is a bomb
                 removedBox["color"] = "black"  # Displays box as bomb
-                removedBox["pickup_time"] = time.time()  # marks when bomb was removed from box (explodes after a period of time)
+                removedBox["pickupTime"] = time.time()  # marks when bomb was removed from box (explodes after a period of time)
                 removedBox["image"] = pygame.image.load('sprites/boxes/sprite_6.png') # changes image displayed (to see bomb)
                 removedBox["exploded"] = False # creates new key in box dictionary
             boxesInQueue.pop(indexRemoved) # removes picked up box from queue
             # Sets box position to by above players head
-            removedBox["rect"].y = player_pos.y - 10 
-            removedBox["rect"].x = player_pos.x + 20 
+            removedBox["rect"].y = playerOnePos.y - 10 
+            removedBox["rect"].x = playerOnePos.x + 20 
             break # breaks loop after found box to be removed 
     return {"newQueue": boxesInQueue, "boxPicked": removedBox} # returns new List of boxes and which box was removed
 
@@ -75,7 +75,7 @@ def drawDropOffs(screen):
         y = y +100
 
 # function for dropping boxes in correct location 
-def dropBox(screen, playerOne, playerPosition, box):
+def dropBox(screen, playerOne, playerOnePosition, box):
     dropOffXLocation = 25 # dropoff x possition for player one (left side of the screen)
     if playerOne == False:
         dropOffXLocation = screen.get_width() - 85  # dropoff x possition for player two (right side of the screen)
@@ -89,19 +89,19 @@ def dropBox(screen, playerOne, playerPosition, box):
 
     # loops through drop off zone list of dictionaties
     for dropOff in dropOffs:
-        if abs(playerPosition.x - dropOffXLocation) < 100 and abs(playerPosition.y - dropOff["location"] - 100) < 35: # checks if player is close to dropoff zone in order to drop box
+        if abs(playerOnePosition.x - dropOffXLocation) < 100 and abs(playerOnePosition.y - dropOff["location"] - 100) < 35: # checks if player is close to dropoff zone in order to drop box
             if dropOff["color"] == box["color"]: # check if drop off zone player is close to is the same color as the box he is holding
                 return box["points"]  # Return 1 point when the box is dropped in the correct place
 
     return 0  # No points if box is not dropped in the correct place
  
 
-def bombTimerOver(screen, bomb_box):
+def bombTimerOver(screen, bombBox):
     #  Bomb explosion effect
-    if bomb_box and not bomb_box["exploded"]:
-        if time.time() - bomb_box["pickup_time"] > 2: # checks bomb timer is over (2 seconds)
+    if bombBox and not bombBox["exploded"]:
+        if time.time() - bombBox["pickupTime"] > 2: # checks bomb timer is over (2 seconds)
             # Draw explosion effect
-            pygame.draw.circle(screen, (255, 0, 0), (bomb_box["rect"].x + 60, bomb_box["rect"].y), 50)
+            pygame.draw.circle(screen, (255, 0, 0), (bombBox["rect"].x + 60, bombBox["rect"].y), 50)
             return True # if timer is over 
     return False # if timer is not over 
 
@@ -117,7 +117,7 @@ def drawScreenObjects(screen,conveyerSwitch):
     drawDropOffs(screen)
 
 
-def main_menu(screen, playing):#to create a main menu
+def mainMenu(screen, playing):#to create a main menu
     clock = pygame.time.Clock()#get framerate
     inMainMenu = not playing
     
@@ -126,8 +126,8 @@ def main_menu(screen, playing):#to create a main menu
         screen.fill("lightgray") #the background color of main menu
         
         # To make a smaller title
-        title_text = all_text(None, 100, "BOX MASTER", True, "purple")  # Reduced font size from 150 to 100
-        screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 80))  # Move title up slightly
+        titleText = allText(None, 100, "BOX MASTER", True, "purple")  # Reduced font size from 150 to 100
+        screen.blit(titleText, ((screen.get_width() - titleText.get_width()) / 2, 80))  # Move title up slightly
 
         # Add "How to Play" instructions
         instructions = [
@@ -142,28 +142,28 @@ def main_menu(screen, playing):#to create a main menu
             "8. Put the bombs in black drop-off zones before Bomb explodes to score points.",
 
         ]
-        instruction_y = 200  # Move instructions up (from 250 to 200)
+        instructionY = 200  # Move instructions up (from 250 to 200)
         for line in instructions:
-            instruction_text = all_text(None, 30, line, True, "black")
-            screen.blit(instruction_text, ((screen.get_width() - instruction_text.get_width()) / 2, instruction_y))
-            instruction_y += 30  # Increase Y position for the next line of instructions
+            instructionText = allText(None, 30, line, True, "black")
+            screen.blit(instructionText, ((screen.get_width() - instructionText.get_width()) / 2, instructionY))
+            instructionY += 30  # Increase Y position for the next line of instructions
 
         # Add start button
-        start_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
-        start_button_clicked = all_buttons(screen, start_button, "New Game", None, 40, "darkgreen", "white")
+        startButton = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
+        startButtonClicked = allButtons(screen, startButton, "New Game", None, 40, "darkgreen", "white")
 
         # Add quit button
-        quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
-        quit_button_clicked = all_buttons(screen, quit_button, "Quit", None, 40, "red", "white")
+        quitButton = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
+        quitButtonClicked = allButtons(screen, quitButton, "Quit", None, 40, "red", "white")
 
-        if start_button_clicked:  # click to start the game
+        if startButtonClicked:  # click to start the game
             break  # the main menu function breaks and the game starts
 
 
-        if start_button_clicked: #click to start the game
+        if startButtonClicked: #click to start the game
             return True #the main menu function breaks and the game starts
 
-        if quit_button_clicked: #click to quit the game
+        if quitButtonClicked: #click to quit the game
             pygame.quit()
             exit()
             
@@ -187,31 +187,31 @@ def main_menu(screen, playing):#to create a main menu
                 pygame.quit()
                 exit()
 
-def pause_menu(screen):#created a pause menu
+def pauseMenu(screen):#created a pause menu
     clock = pygame.time.Clock()
     while True:
         screen.fill("lightgray")
 
-        pause_text = all_text(None, 150, "PAUSED", True, "blue")#to display text on pause menu
-        screen.blit(pause_text, ((screen.get_width() - pause_text.get_width()) / 2, 100))
+        pauseText = allText(None, 150, "PAUSED", True, "blue")#to display text on pause menu
+        screen.blit(pauseText, ((screen.get_width() - pauseText.get_width()) / 2, 100))
 
-        resume_button = pygame.Rect(screen.get_width() / 2 - 100, 350, 200, 60)#added resume button
-        resume_button_clicked = all_buttons(screen, resume_button, "Resume", None, 40, "darkgreen", "white")
+        resumeButton = pygame.Rect(screen.get_width() / 2 - 100, 350, 200, 60)#added resume button
+        resumeButtonClicked = allButtons(screen, resumeButton, "Resume", None, 40, "darkgreen", "white")
 
-        newgame_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)#added resume button
-        newgame_button_clicked = all_buttons(screen, newgame_button, "New Game", None, 40, "darkorange", "white")
+        newgameButton = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)#added resume button
+        newgameButtonClicked = allButtons(screen, newgameButton, "New Game", None, 40, "darkorange", "white")
 
         #to add quit button
-        quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
-        quit_button_clicked = all_buttons(screen, quit_button, "Quit", None, 40, "red", "white")
+        quitButton = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
+        quitButtonClicked = allButtons(screen, quitButton, "Quit", None, 40, "red", "white")
 
-        if resume_button_clicked:
+        if resumeButtonClicked:
             break
         
-        if newgame_button_clicked:
+        if newgameButtonClicked:
             return True
 
-        if quit_button_clicked:
+        if quitButtonClicked:
             pygame.quit()
             exit()
             
@@ -229,20 +229,20 @@ def gameEnd(screen, winner, playerImage):
     while True:
         screen.fill("pink")
         screen.blit(playerImage, (screen.get_width()/2 - 30, screen.get_height() / 2 - 50 ))
-        title_text = all_text(None, 150, winner + " WINS!", True, "orange")
-        screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 100))
+        titleText = allText(None, 150, winner + " WINS!", True, "orange")
+        screen.blit(titleText, ((screen.get_width() - titleText.get_width()) / 2, 100))
 
-        newGame_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
-        newGame_button_clicked = all_buttons(screen, newGame_button, "New Game", None, 40, "red", "white")
+        newgameButton = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
+        newgameButtonClicked = allButtons(screen, newgameButton, "New Game", None, 40, "red", "white")
 
-        quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
-        quit_button_clicked = all_buttons(screen, quit_button, "Quit", None, 40, "red", "white")
+        quitButton = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
+        quitButtonClicked = allButtons(screen, quitButton, "Quit", None, 40, "red", "white")
 
-        if quit_button_clicked:
+        if quitButtonClicked:
             pygame.quit()
             exit()
             
-        if newGame_button_clicked:
+        if newgameButtonClicked:
             return True
 
         pygame.display.flip()
@@ -277,12 +277,12 @@ def inGame(screen, playing):
     playerTwoImageTwo = pygame.image.load("sprites/player/sprite_3.png")
 
     # PLAYER POSSTIONS
-    player_pos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)
-    player2_pos = pygame.Vector2(screen.get_width() / 1.5, screen.get_height() / 2)
+    playerOnePos = pygame.Vector2(screen.get_width() / 3, screen.get_height() / 2)
+    playerTwoPos = pygame.Vector2(screen.get_width() / 1.5, screen.get_height() / 2)
 
     # BOX PLAYER IS HOLDING (False is no box is being held)
-    player_one_box = False 
-    player_two_box = False
+    playerOneBox = False 
+    playerTwoBox = False
 
     # CONTROLS IF PLAYER CAN MOVE OR NOT AND HOW LONG THEY HAVE NOT BEING ABLE TO MOVE
     playerOneMovement = {"disabled": False, "time": time.time()}
@@ -290,18 +290,18 @@ def inGame(screen, playing):
  
         
     PLAYER_RADIUS = 40  # Defining the Size of the player
-    player_one_score = 0  # Initialize player one's score
-    player_two_score = 0  # Initialize player two's score 
+    playerOneScore = 0  # Initialize player one's score
+    playerTwoScore = 0  # Initialize player two's score 
 
     conveyerSwitch = True
     # while game is running
     while running:
-        if(player_one_score > 29 or player_two_score > 29):
-            if(player_one_score > player_two_score):
+        if(playerOneScore > 29 or playerTwoScore > 29):
+            if(playerOneScore > playerTwoScore):
                 restart = gameEnd(screen, "PLAYER ONE", playerImage)
                 if(restart):
                     running = False
-            if(player_one_score < player_two_score):
+            if(playerOneScore < playerTwoScore):
                 restart = gameEnd(screen, "PLAYER TWO", playerTwoImage)
                 if(restart):
                     running = False
@@ -317,23 +317,23 @@ def inGame(screen, playing):
             playerAnimationToggle = not playerAnimationToggle
 
         # Handles bomb explosion / disables player movement and subtracts points
-        if player_one_box:            
-            if player_one_box["box_is_bomb"]:
-                exploded = bombTimerOver(screen, player_one_box) # function returns if bomb exploded or not
+        if playerOneBox:            
+            if playerOneBox["boxIsBomb"]:
+                exploded = bombTimerOver(screen, playerOneBox) # function returns if bomb exploded or not
                 if(exploded):
-                    player_one_score -= player_one_box["points"] # deducts points
-                    player_one_box = False # removes box for players hand
+                    playerOneScore -= playerOneBox["points"] # deducts points
+                    playerOneBox = False # removes box for players hand
                     playerOneMovement = {"disabled": True, "time": time.time()} # make disabled key in playmovement library equal to true
                     #handle sound effect
                     pygame.mixer.music.load("explosion.mp3")
                     pygame.mixer.music.play()
 
-        if player_two_box:    
-            if player_two_box["box_is_bomb"]:
-                exploded = bombTimerOver(screen, player_two_box)
+        if playerTwoBox:    
+            if playerTwoBox["boxIsBomb"]:
+                exploded = bombTimerOver(screen, playerTwoBox)
                 if(exploded):
-                    player_two_score -= player_two_box["points"] # deducts points
-                    player_two_box = False # removes box for players hand
+                    playerTwoScore -= playerTwoBox["points"] # deducts points
+                    playerTwoBox = False # removes box for players hand
                     playerTwoMovement = {"disabled": True, "time": time.time()} # make disabled key in playmovement library equal to true
                     
                     #handle sound effect
@@ -357,76 +357,75 @@ def inGame(screen, playing):
         if count > 100 :
             boxColors = ["orange","green","cyan","red","purple","yellow"]
             randomPoints = random.randrange(1,4,1)
-            box_is_bomb =  random.random() < 0.2 #20% chance of bomb
+            boxIsBomb =  random.random() < 0.2 #20% chance of bomb
             boxColor = random.choice(boxColors)
-            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 32, 0, 55, 55), "points": randomPoints,"color": boxColor, "box_is_bomb": box_is_bomb,"image":boxesImgs[boxColor]})
+            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 32, 0, 55, 55), "points": randomPoints,"color": boxColor, "boxIsBomb": boxIsBomb,"image":boxesImgs[boxColor]})
             count = 0
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN: #press P to call pause menu
                 if event.key == pygame.K_p or event.key == pygame.K_ESCAPE :
                    print('I am pausing')
-                   if pause_menu(screen):
+                   if pauseMenu(screen):
                        running = False
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    if player_one_box:
-                        boxDroppedPoints = dropBox(screen, True, player_pos, player_one_box)
-                        player_one_score += boxDroppedPoints  # Add points if box is dropped
+                    if playerOneBox:
+                        boxDroppedPoints = dropBox(screen, True, playerOnePos, playerOneBox)
+                        playerOneScore += boxDroppedPoints  # Add points if box is dropped
                         if boxDroppedPoints > 0:
-                            player_one_box = False
+                            playerOneBox = False
 
                     else: # if player is NOT holding box then pick box 
-                        newBoxes = pickBox(queuedBoxes, player_pos)
+                        newBoxes = pickBox(queuedBoxes, playerOnePos)
                         queuedBoxes = newBoxes["newQueue"]
                         if newBoxes["boxPicked"] != False:
-                            player_one_box = newBoxes["boxPicked"]
-                            player_one_box["rect"].y = player_pos.y
-                            player_one_box["rect"].x = player_pos.x 
+                            playerOneBox = newBoxes["boxPicked"]
+                            playerOneBox["rect"].y = playerOnePos.y
+                            playerOneBox["rect"].x = playerOnePos.x 
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    if player_two_box:
-                        boxDroppedPoints = dropBox(screen, False, player2_pos, player_two_box)
-                        player_two_score += boxDroppedPoints  # Add points if box is dropped
+                    if playerTwoBox:
+                        boxDroppedPoints = dropBox(screen, False, playerTwoPos, playerTwoBox)
+                        playerTwoScore += boxDroppedPoints  # Add points if box is dropped
                         if boxDroppedPoints > 0:
-                            player_two_box = False
+                            playerTwoBox = False
                     else:
-                        newBoxes = pickBox(queuedBoxes, player2_pos)
+                        newBoxes = pickBox(queuedBoxes, playerTwoPos)
                         queuedBoxes = newBoxes["newQueue"]
                         if newBoxes["boxPicked"] != False:
-                            player_two_box = newBoxes["boxPicked"]
-                            player_two_box["rect"].y = player2_pos.y - 100
-                            player_two_box["rect"].x = player2_pos.x - 30
+                            playerTwoBox = newBoxes["boxPicked"]
+                            playerTwoBox["rect"].y = playerTwoPos.y - 100
+                            playerTwoBox["rect"].x = playerTwoPos.x - 30
 
                             
-        if player_one_box and "box_is_bomb" in player_one_box and player_one_box["box_is_bomb"]:
-            current_time = time.time()
-            if current_time - player_one_box["pickup_time"] > 4:
+        if playerOneBox and "boxIsBomb" in playerOneBox and playerOneBox["boxIsBomb"]:
+            if time.time() - playerOneBox["pickupTime"] > 4:
                 #this can be replaced with visual and sound effects
-                player_one_box = False
+                playerOneBox = False
 
         # draw and move boxes on conveyer
         conveyBoxes(queuedBoxes, screen)
         
         # Draw player position
-        # pygame.draw.circle(screen, "purple", player_pos, 40)
+        # pygame.draw.circle(screen, "purple", playerOnePos, 40)
         if playerAnimationToggle:
-            screen.blit(playerImage, (player_pos.x, player_pos.y))
-            screen.blit(playerTwoImage, (player2_pos.x, player2_pos.y))
+            screen.blit(playerImage, (playerOnePos.x, playerOnePos.y))
+            screen.blit(playerTwoImage, (playerTwoPos.x, playerTwoPos.y))
         else:
-            screen.blit(playerImageTwo, (player_pos.x, player_pos.y))
-            screen.blit(playerTwoImageTwo, (player2_pos.x, player2_pos.y))
+            screen.blit(playerImageTwo, (playerOnePos.x, playerOnePos.y))
+            screen.blit(playerTwoImageTwo, (playerTwoPos.x, playerTwoPos.y))
         
         
 
 
-        if(player_one_box):
-            screen.blit(player_one_box["image"],(player_one_box["rect"].x + 30 , player_one_box["rect"].y ))
-        if(player_two_box):
-            screen.blit(player_two_box["image"],(player_two_box["rect"].x + 30, player_two_box["rect"].y))
+        if(playerOneBox):
+            screen.blit(playerOneBox["image"],(playerOneBox["rect"].x + 30 , playerOneBox["rect"].y ))
+        if(playerTwoBox):
+            screen.blit(playerTwoBox["image"],(playerTwoBox["rect"].x + 30, playerTwoBox["rect"].y))
             
             
         if(len(queuedBoxes) > 8):
@@ -434,69 +433,69 @@ def inGame(screen, playing):
 
         # Display player scores
         font = pygame.font.SysFont(None, 36)
-        player_one_score_text = font.render(f"Player 1: {player_one_score}", True, (0, 0, 0))
-        player_two_score_text = font.render(f"Player 2: {player_two_score}", True, (0, 0, 0)) # Position scores
-        pygame.draw.rect(screen, (255, 255, 255), (screen.get_width() // 4 - player_one_score_text.get_width() // 2 - 10, 5, player_one_score_text.get_width() + 20, 30))
-        pygame.draw.rect(screen, (255, 255, 255), (3 * screen.get_width() // 4 - player_two_score_text.get_width() // 2 - 10, 5, player_two_score_text.get_width() + 20, 30))
+        playerOneScoreText = font.render(f"Player 1: {playerOneScore}", True, (0, 0, 0))
+        playerTwoScoreText = font.render(f"Player 2: {playerTwoScore}", True, (0, 0, 0)) # Position scores
+        pygame.draw.rect(screen, (255, 255, 255), (screen.get_width() // 4 - playerOneScoreText.get_width() // 2 - 10, 5, playerOneScoreText.get_width() + 20, 30))
+        pygame.draw.rect(screen, (255, 255, 255), (3 * screen.get_width() // 4 - playerTwoScoreText.get_width() // 2 - 10, 5, playerTwoScoreText.get_width() + 20, 30))
         
         # Position scores
-        screen.blit(player_one_score_text, (screen.get_width() // 4 - player_one_score_text.get_width() // 2, 10))
-        screen.blit(player_two_score_text, (3 * screen.get_width() // 4 - player_two_score_text.get_width() // 2, 10))
+        screen.blit(playerOneScoreText, (screen.get_width() // 4 - playerOneScoreText.get_width() // 2, 10))
+        screen.blit(playerTwoScoreText, (3 * screen.get_width() // 4 - playerTwoScoreText.get_width() // 2, 10))
 
 
         keys = pygame.key.get_pressed()
         if(playerOneMovement["disabled"] == False): # if player not disabled then move
             if keys[pygame.K_w]:
-                if(player_pos.y > 5): # enforces borders
-                    player_pos.y -= 3
-                if player_one_box != False:
-                    player_one_box["rect"].y -= 3
+                if(playerOnePos.y > 5): # enforces borders
+                    playerOnePos.y -= 3
+                if playerOneBox != False:
+                    playerOneBox["rect"].y -= 3
             if keys[pygame.K_s]:
-                if(player_pos.y < 625): # enforces borders
-                    player_pos.y += 3   
-                if player_one_box != False:
-                    player_one_box["rect"].y += 3
+                if(playerOnePos.y < 625): # enforces borders
+                    playerOnePos.y += 3   
+                if playerOneBox != False:
+                    playerOneBox["rect"].y += 3
             if keys[pygame.K_a]:
-                if(player_pos.x > 110): # enforces borders
-                    player_pos.x -= 3
-                if player_one_box != False:
-                    player_one_box["rect"].x -= 3
+                if(playerOnePos.x > 110): # enforces borders
+                    playerOnePos.x -= 3
+                if playerOneBox != False:
+                    playerOneBox["rect"].x -= 3
             if keys[pygame.K_d]:
-                if(player_pos.x < 515): # enforces borders
-                    player_pos.x += 3
-                if player_one_box != False:
-                    player_one_box["rect"].x += 3  
+                if(playerOnePos.x < 515): # enforces borders
+                    playerOnePos.x += 3
+                if playerOneBox != False:
+                    playerOneBox["rect"].x += 3  
         
         if(playerTwoMovement["disabled"] == False): # if player not disabled then move
             if keys[pygame.K_UP]:
-                if(player2_pos.y > 5): # enforces borders
-                    player2_pos.y -= 3
-                if player_two_box != False:
-                    player_two_box["rect"].y -= 3
+                if(playerTwoPos.y > 5): # enforces borders
+                    playerTwoPos.y -= 3
+                if playerTwoBox != False:
+                    playerTwoBox["rect"].y -= 3
             if keys[pygame.K_DOWN]:
-                if(player2_pos.y < 625): # enforces borders
-                    player2_pos.y += 3   
-                if player_two_box != False:
-                    player_two_box["rect"].y += 3
+                if(playerTwoPos.y < 625): # enforces borders
+                    playerTwoPos.y += 3   
+                if playerTwoBox != False:
+                    playerTwoBox["rect"].y += 3
             if keys[pygame.K_LEFT]:
-                if(player2_pos.x > 700): # enforces borders
-                    player2_pos.x -= 3
-                if player_two_box != False:
-                    player_two_box["rect"].x -= 3
+                if(playerTwoPos.x > 700): # enforces borders
+                    playerTwoPos.x -= 3
+                if playerTwoBox != False:
+                    playerTwoBox["rect"].x -= 3
             if keys[pygame.K_RIGHT]:
-                if(player2_pos.x < 1100): # enforces borders
-                    player2_pos.x += 3
-                if player_two_box != False:
-                    player_two_box["rect"].x += 3                      
+                if(playerTwoPos.x < 1100): # enforces borders
+                    playerTwoPos.x += 3
+                if playerTwoBox != False:
+                    playerTwoBox["rect"].x += 3                      
 
         
         # Keeps the picked up box centered over the character
-        if player_one_box:
-            player_one_box["rect"].x = player_pos.x - player_one_box["rect"].width // 2
-            player_one_box["rect"].y = player_pos.y - player_one_box["rect"].height - 10
-        if player_two_box:
-            player_two_box["rect"].x = player2_pos.x - player_two_box["rect"].width // 2
-            player_two_box["rect"].y = player2_pos.y - player_two_box["rect"].height - 10
+        if playerOneBox:
+            playerOneBox["rect"].x = playerOnePos.x - playerOneBox["rect"].width // 2
+            playerOneBox["rect"].y = playerOnePos.y - playerOneBox["rect"].height - 10
+        if playerTwoBox:
+            playerTwoBox["rect"].x = playerTwoPos.x - playerTwoBox["rect"].width // 2
+            playerTwoBox["rect"].y = playerTwoPos.y - playerTwoBox["rect"].height - 10
         
 
 
@@ -513,7 +512,7 @@ def main():
     screen = pygame.display.set_mode((1280, 700))
     running = True # Game is running
     playing = True # Player is playing game
-    main_menu(screen, False)
+    mainMenu(screen, False)
     while(running):
         exit = inGame(screen, playing)
         if(exit):
