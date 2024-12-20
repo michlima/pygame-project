@@ -66,13 +66,10 @@ def pickBox(queuedBoxes, player_pos):
             indexRemoved = box
             removedBox = queuedBoxes[box]
             if removedBox["box_is_bomb"]:
-                removedBox["color"] = "black"  # bomb boxes turn black after pick up
+                removedBox["color"] = "black"  # Displays box as bomb
                 removedBox["pickup_time"] = time.time()  # bomb takes action after a timeframe
                 removedBox["image"] = pygame.image.load('sprites/boxes/sprite_6.png')
-                removedBox["pickup_time"] = time.time() # bomb takes action after a timeframeremovedBox["exploded"] = False  # Track explosion status
-                removedBox["image"] = pygame.image.load('sprites/boxes/sprite_6.png')
-                player_score -= 5
-
+                removedBox["exploded"] = False
             newBoxes.pop(indexRemoved)
             removedBox["rect"].y = player_pos.y - 10
             removedBox["rect"].x = player_pos.x + 20
@@ -102,32 +99,29 @@ def dropBox(screen, playerOne, playerPosition, box):
         dropOffs.append({"location": locationY, "color": color})
         locationY = locationY + 100
     for dropOff in dropOffs:
-        print(abs(playerPosition.x - x))
         if abs(playerPosition.x - x) < 100 and abs(playerPosition.y - dropOff["location"] - 100) < 35:
             if dropOff["color"] == box["color"]:
-                return 1  # Return 1 point when the box is dropped in the correct place
+                return box["points"]  # Return 1 point when the box is dropped in the correct place
 
     return 0  # No points if box is not dropped in the correct place
  
 
-def handleBombExplosion(screen, bomb_box, player_pos):
+def handleBombExplosion(screen, bomb_box):
     #  Bomb explosion effect
-    if bomb_box and not bomb_box.get("exploded"):
+    if bomb_box and not bomb_box["exploded"]:
         current_time = time.time()
-        if current_time - bomb_box["pickup_time"] > 4:
-            print("Bomb exploded!")
+        if current_time - bomb_box["pickup_time"] > 1.7: # checks if bomb is past time
             # Draw explosion effect
-            pygame.draw.circle(screen, (255, 0, 0), bomb_box["rect"].center, 50)
+            pygame.draw.circle(screen, (255, 0, 0), (bomb_box["rect"].x + 60, bomb_box["rect"].y), 50)
             # Deduct points
-            player_score -= 10
-            # Mark as exploded
-            bomb_box["exploded"] = True
-    return bomb_box, player_score
+            return True
+    return False
 
 
 
 
 conveyerSwitch = True 
+
 def drawScreenObjects(screen,conveyerSwitch):
     conveyerImg = pygame.image.load('sprites/conveyer/conveyer_0.png')
     tableImg = pygame.image.load("sprites/table/table.png")
@@ -201,7 +195,9 @@ def main():
 
     player_one_box = False
     player_two_box = False
-    current_time = time.time()
+    playerOneMovement = {"disabled": False, "time": time.time()}
+    playerTwoMovement = {"disabled": False, "time": time.time()}
+ 
 
     PLAYER_RADIUS = 40  # Defining the Size of the player
     player_one_score = 0  # Initialize player one's score
@@ -219,24 +215,30 @@ def main():
         if count % 13 == 0:
             conveyerSwitch = not conveyerSwitch
             playerAnimationToggle = not playerAnimationToggle
-            if time.time() < player_one_disabled_until:
-            # Disable movement
-             keys = pygame.key.get_pressed()
-            keys[pygame.K_w] = keys[pygame.K_s] = False
-            keys[pygame.K_a] = keys[pygame.K_d] = False
+            
 
         # Other game logic goes here...
+        # if player_one_box:
+            # boxDroppedPoints = dropBox(screen, True, player_pos, player_one_box)
+            # player_one_score += boxDroppedPoints  # Add points if box is dropped
 
-        if player_one_box:
-            boxDroppedPoints = dropBox(screen, True, player_pos, player_one_box)
-            player_one_score += boxDroppedPoints  # Add points if box is dropped
+        # Handle bomb explosion / disables player movement and subtracts points
+        if player_one_box:            
+            if player_one_box["box_is_bomb"]:
+                exploded = handleBombExplosion(screen, player_one_box)
+                if(exploded):
+                    player_one_score -= player_one_box["points"]
+                    player_one_box = False 
+                    playerOneMovement = {"disabled": True, "time": time.time()}
+                    pygame.mixer.music.load("explosion.mp3")  # Replace with the correct path to your music file
+                    pygame.mixer.music.set_volume(0.5)  # Set the volume (optional)
+                    pygame.mixer.music.play()
 
-        # Handle bomb explosion
-        if player_one_box and player_one_box.get("box_is_bomb"):
-            player_one_box, player_one_score = handleBombExplosion(screen, player_one_box, player_pos, player_one_score)
+        # enables movement again
+        if playerOneMovement["disabled"]:
+            if playerOneMovement["time"] < time.time() - 2:
+                playerOneMovement = {"disabled": False, "time": time.time()}
 
-
-        #player animation
 
         
         # creates boxes every 100 count
@@ -253,85 +255,34 @@ def main():
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                     if player_one_box and player_one_box.get("box_is_bomb"):
-                         current_time = time.time()
-                         if current_time - player_one_box["pickup_time"] > 4 and not player_one_box.get("exploded"):
-                             print("Player 1 bomb exploded!")
-        player_one_score -= 10  # Deduct points for explosion
-        handleBombExplosion(screen, player_one_box, player_pos)
-        player_one_box["exploded"] = True  # Mark bomb as exploded
-        player_one_box = False  # Remove the bomb from player
-        if current_time - player_one_box["pickup_time"] > 4 and not player_one_box.get("exploded"):
-            print("Player 1 bomb exploded!")
-            player_one_score -= 10  # Additional penalty for explosion
-            handleBombExplosion(screen, player_one_box, player_pos)
-            player_one_box["exploded"] = True  # Mark as exploded
-            if player_one_box:
-                       if player_one_box and player_one_box.get("box_is_bomb"):
-                        player_one_box, player_one_score = handleBombExplosion(screen, player_one_box, player_pos, player_one_score)
-                        print("Player One hit a bomb! -5 points")
-                        player_one_box = False  # Bomb is removed after penalty
-            else:
-                            boxDroppedPoints = dropBox(screen, True, player_pos, player_one_box)
-                            player_one_score += boxDroppedPoints  # Add points if box is dropped
-                            if boxDroppedPoints > 0:
-                                player_one_box = False
-                            else: # if player is NOT holding box then pick box 
-                             newBoxes = pickBox(queuedBoxes, player_pos)
-                             queuedBoxes = newBoxes["newQueue"]
-                             if newBoxes["boxPicked"] != False:
-                              player_one_box = newBoxes["boxPicked"]
+                    if player_one_box:
+                        boxDroppedPoints = dropBox(screen, True, player_pos, player_one_box)
+                        player_one_score += boxDroppedPoints  # Add points if box is dropped
+                        if boxDroppedPoints > 0:
+                            player_one_box = False
+
+                    else: # if player is NOT holding box then pick box 
+                        newBoxes = pickBox(queuedBoxes, player_pos)
+                        queuedBoxes = newBoxes["newQueue"]
+                        if newBoxes["boxPicked"] != False:
+                            player_one_box = newBoxes["boxPicked"]
                             player_one_box["rect"].y = player_pos.y
                             player_one_box["rect"].x = player_pos.x 
 
-
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SLASH:
-                    if player_two_box and player_two_box.get("box_is_bomb"):
-                        player_two_box, player_two_score = handleBombExplosion(screen, player_two_box, player2_pos, player_two_score)
-                        current_time = time.time()
-                        if current_time - player_two_box["pickup_time"] > 4 and not player_two_box.get("exploded"):
-                            print("Player 2 bomb exploded!")
-        player_two_score -= 10  # Deduct points for explosion
-        handleBombExplosion(screen, player_two_box, player2_pos)
-        player_two_box["exploded"] = True  # Mark bomb as exploded
-        player_two_box = False  # Remove the bomb from player
-        if current_time - player_two_box["pickup_time"] > 4 and not player_two_box.get("exploded"):
-            print("Player 2 bomb exploded!")
-            player_two_score -= 10  # Additional penalty for explosion
-            handleBombExplosion(screen, player_two_box, player2_pos)
-            player_two_box["exploded"] = True  # Mark as exploded
-            
-            if player_two_box:
-                        if player_two_box["box_is_bomb"]:
-                            player_two_score -= 5
-                            print("Player Two hit a bomb! -5 points")
-                            player_two_box = False  # Bomb is removed after penalty
-                        else:
-                            boxDroppedPoints = dropBox(screen, False, player2_pos, player_two_box)
-                            player_two_score += boxDroppedPoints  # Add points if box is dropped
-                            if boxDroppedPoints > 0:
-                                player_two_box = False
-                            else:
-                             newBoxes = pickBox(queuedBoxes, player2_pos)
+                    if player_two_box:
+                        boxDroppedPoints = dropBox(screen, False, player2_pos, player_two_box)
+                        player_two_score += boxDroppedPoints  # Add points if box is dropped
+                        if boxDroppedPoints > 0:
+                            player_two_box = False
+                    else:
+                        newBoxes = pickBox(queuedBoxes, player2_pos)
                         queuedBoxes = newBoxes["newQueue"]
                         if newBoxes["boxPicked"] != False:
                             player_two_box = newBoxes["boxPicked"]
                             player_two_box["rect"].y = player2_pos.y - 100
                             player_two_box["rect"].x = player2_pos.x - 30
-
-        if player_one_box and "box_is_bomb" in player_one_box and player_one_box["box_is_bomb"]:
-            current_time = time.time()
-            if current_time - player_one_box["pickup_time"] > 4 and not player_one_box.get("exploded"):
-                print("Player 1 bomb exploded!")
-            print(f"Player 1 Score: {player_one_score}")
-            print(f"Bomb Exploded: {player_one_box.get('exploded')}")
-                #print("Bomb")#this can be replaced with visual and sound effects
-        player_one_box = False
-        if player_one_box and player_one_box.get("box_is_bomb"):
-            player_one_box, player_one_score = handleBombExplosion(screen, player_one_box, player_pos, player_one_score)
-            if player_two_box and player_two_box.get("box_is_bomb"):
-                player_two_box, player_two_score = handleBombExplosion(screen, player_two_box, player2_pos, player_two_score)
 
         # draw and move boxes on conveyer
         conveyBoxes(queuedBoxes, screen)
@@ -370,27 +321,29 @@ def main():
 
 
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
-            if(player_pos.y > 5): # enforces borders
-                player_pos.y -= 3
-            if player_one_box != False:
-                player_one_box["rect"].y -= 3
-        if keys[pygame.K_s]:
-            if(player_pos.y < 625): # enforces borders
-                player_pos.y += 3   
-            if player_one_box != False:
-                player_one_box["rect"].y += 3
-        if keys[pygame.K_a]:
-            if(player_pos.x > 110): # enforces borders
-                player_pos.x -= 3
-            if player_one_box != False:
-                player_one_box["rect"].x -= 3
-        if keys[pygame.K_d]:
-            if(player_pos.x < 515): # enforces borders
-                player_pos.x += 3
-            if player_one_box != False:
+        if(playerOneMovement["disabled"] == False):
+            if keys[pygame.K_w]:
+                if(player_pos.y > 5): # enforces borders
+                    player_pos.y -= 3
+                if player_one_box != False:
+                    player_one_box["rect"].y -= 3
+            if keys[pygame.K_s]:
+                if(player_pos.y < 625): # enforces borders
+                    player_pos.y += 3   
+                if player_one_box != False:
+                    player_one_box["rect"].y += 3
+            if keys[pygame.K_a]:
+                if(player_pos.x > 110): # enforces borders
+                    player_pos.x -= 3
+                if player_one_box != False:
+                    player_one_box["rect"].x -= 3
+            if keys[pygame.K_d]:
+                if(player_pos.x < 515): # enforces borders
+                    player_pos.x += 3
+                if player_one_box != False:
 
-                player_one_box["rect"].x += 3  
+                    player_one_box["rect"].x += 3  
+        
                 
         if keys[pygame.K_UP]:
             if(player2_pos.y > 5): # enforces borders
@@ -429,11 +382,6 @@ def main():
             player_two_box["rect"].x = player2_pos.x - player_two_box["rect"].width // 2
             player_two_box["rect"].y = player2_pos.y - player_two_box["rect"].height - 10
         
-
-        # Display player scores
-        font = pygame.font.SysFont(None, 36)
-        score_text = font.render(f"Player 1 Score: {player_one_score}  Player 2 Score: {player_two_score}", True, (0, 0, 0))
-        screen.blit(score_text, (10, 10))
 
         # flip() the display to put your work on screen
         pygame.display.flip()
