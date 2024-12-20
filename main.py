@@ -253,11 +253,15 @@ def inGame(screen, playing):
     conveyerSwitch = True
     # while game is running
     while running:
-        if(player_one_score > 1 | player_two_score > 1):
+        if(player_one_score > 1 or player_two_score > 1):
             if(player_one_score > player_two_score):
-                gameEnd(screen, "PLAYER ONE", playerImage)
+                restart = gameEnd(screen, "PLAYER ONE", playerImage)
+                if(restart):
+                    running = False
             if(player_one_score < player_two_score):
-                gameEnd(screen, "PLAYER ONE", playerTwoImage)
+                restart = gameEnd(screen, "PLAYER TWO", playerTwoImage)
+                if(restart):
+                    running = False
             
         screen.fill("skyblue")
         ## draw coveyer table
