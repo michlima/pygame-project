@@ -199,19 +199,19 @@ def pause_menu(screen):#created a pause menu
                 exit()
 
 
-def main():
-    pygame.init()
-    screen = pygame.display.set_mode((1280, 700))
-    clock = pygame.time.Clock()
-
-    main_menu(screen)#call main menu
-    paused = False #to call pause menu later
-    running = True
+def runMusic():
     pygame.mixer.music.load("BEAT.mp3")  # Replace with the correct path to your music file
     pygame.mixer.music.set_volume(0.5)  # Set the volume (optional)
     pygame.mixer.music.play(-1, 0.0)  # Loop the music indefinitely
-  
-    dt, count, running, queuedBoxes = 0 , 100, True, []
+
+def inGame(screen, playing):
+    pygame.init()
+    screen = pygame.display.set_mode((1280, 700))
+    clock = pygame.time.Clock()
+    paused = False #to call pause menu later
+    running = True
+    runMusic()
+    dt, count, running, queuedBoxes = 0 , 100, playing, []
     playerAnimationToggle = True
     
     playerImage = pygame.image.load("sprites/player/sprite_0.png")
@@ -227,6 +227,8 @@ def main():
     player_two_box = False
     playerOneMovement = {"disabled": False, "time": time.time()}
     playerTwoMovement = {"disabled": False, "time": time.time()}
+    bombExploded = False
+    bombExplodedCount = time.time()
  
 
     PLAYER_RADIUS = 40  # Defining the Size of the player
@@ -263,12 +265,35 @@ def main():
                     pygame.mixer.music.load("explosion.mp3")  # Replace with the correct path to your music file
                     pygame.mixer.music.set_volume(0.5)  # Set the volume (optional)
                     pygame.mixer.music.play()
+                    bombExploded = True
+                    bombExplodedCount = time.time()
 
-        # enables movement again
+        if player_two_box:    
+            if player_two_box["box_is_bomb"]:
+                exploded = handleBombExplosion(screen, player_two_box)
+                if(exploded):
+                    player_two_score -= player_two_box["points"]
+                    player_two_box = False 
+                    playerTwoMovement = {"disabled": True, "time": time.time()}
+                    pygame.mixer.music.load("explosion.mp3")  # Replace with the correct path to your music file
+                    pygame.mixer.music.set_volume(0.5)  # Set the volume (optional)
+                    pygame.mixer.music.play()
+                    bombExploded = True
+                    bombExplodedCount = time.time()
+
+        if bombExploded and bombExplodedCount < time.time() - 2.2:
+            runMusic()
+            bombExploded = False
+            
+        # enables movement again for player One
         if playerOneMovement["disabled"]:
             if playerOneMovement["time"] < time.time() - 2:
                 playerOneMovement = {"disabled": False, "time": time.time()}
 
+        # enables movement again for player Two
+        if playerTwoMovement["disabled"]:
+            if playerTwoMovement["time"] < time.time() - 2:
+                playerTwoMovement = {"disabled": False, "time": time.time()}
 
         
         # creates boxes every 100 count
@@ -277,7 +302,7 @@ def main():
             randomPoints = random.randrange(1,4,1)
             box_is_bomb =  random.random() < 0.2 #20% chance of bomb
             boxColor = random.choice(boxColors)
-            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 32, 0, 55, 55), "points": randomPoints,"color": boxColor, "box_is_bomb": box_is_bomb,"image":boxesImgs[boxColor]})
+            queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 32, 0, 55, 55), "points": randomPoints,"color": boxColor, "box_is_bomb": True,"image":boxesImgs[boxColor]})
             count = 0
 
         for event in pygame.event.get():
@@ -285,9 +310,6 @@ def main():
                 if event.key == pygame.K_p:
                    # paused = True
                     pause_menu(screen)
-                        
-                    
-
             if event.type == pygame.QUIT:
                 return True
             if event.type == pygame.KEYDOWN:
@@ -325,8 +347,7 @@ def main():
         if player_one_box and "box_is_bomb" in player_one_box and player_one_box["box_is_bomb"]:
             current_time = time.time()
             if current_time - player_one_box["pickup_time"] > 4:
-
-                #print("Bomb")#this can be replaced with visual and sound effects
+                #this can be replaced with visual and sound effects
                 player_one_box = False
 
         # draw and move boxes on conveyer
@@ -385,31 +406,29 @@ def main():
                 if(player_pos.x < 515): # enforces borders
                     player_pos.x += 3
                 if player_one_box != False:
-
                     player_one_box["rect"].x += 3  
         
-                
-        if keys[pygame.K_UP]:
-            if(player2_pos.y > 5): # enforces borders
-                player2_pos.y -= 3
-            if player_two_box != False:
-                player_two_box["rect"].y -= 3
-        if keys[pygame.K_DOWN]:
-            if(player2_pos.y < 625): # enforces borders
-                player2_pos.y += 3   
-            if player_two_box != False:
-                player_two_box["rect"].y += 3
-        if keys[pygame.K_LEFT]:
-            if(player2_pos.x > 700): # enforces borders
-                player2_pos.x -= 3
-            if player_two_box != False:
-                player_two_box["rect"].x -= 3
-        if keys[pygame.K_RIGHT]:
-            if(player2_pos.x < 1100): # enforces borders
-                player2_pos.x += 3
-            if player_two_box != False:
-
-                player_two_box["rect"].x += 3                      
+        if(playerTwoMovement["disabled"] == False):
+            if keys[pygame.K_UP]:
+                if(player2_pos.y > 5): # enforces borders
+                    player2_pos.y -= 3
+                if player_two_box != False:
+                    player_two_box["rect"].y -= 3
+            if keys[pygame.K_DOWN]:
+                if(player2_pos.y < 625): # enforces borders
+                    player2_pos.y += 3   
+                if player_two_box != False:
+                    player_two_box["rect"].y += 3
+            if keys[pygame.K_LEFT]:
+                if(player2_pos.x > 700): # enforces borders
+                    player2_pos.x -= 3
+                if player_two_box != False:
+                    player_two_box["rect"].x -= 3
+            if keys[pygame.K_RIGHT]:
+                if(player2_pos.x < 1100): # enforces borders
+                    player2_pos.x += 3
+                if player_two_box != False:
+                    player_two_box["rect"].x += 3                      
 
         if player_pos.x > screen.get_width() / 2 - 50 - PLAYER_RADIUS:
             player_pos.x = screen.get_width() / 2 - 50 - PLAYER_RADIUS
@@ -423,14 +442,6 @@ def main():
             player_two_box["rect"].y = player2_pos.y - player_two_box["rect"].height - 10
         
 
-
-        # Display player scores
-        font = pygame.font.SysFont(None, 36)
-        score_text = font.render(f"Player 1 Score: {player_one_score}  Player 2 Score: {player_two_score}", True, (0, 0, 0))
-        screen.blit(score_text, (10, 10))
-
-        pause_text = all_text(None, 36, "Press P to pause", True, "black")
-        screen.blit(pause_text, (screen.get_width() - pause_text.get_width() - 120, 650))
 
         # flip() the display to put your work on screen
         pygame.display.flip()
