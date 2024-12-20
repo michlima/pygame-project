@@ -182,7 +182,35 @@ def pause_menu(screen):#created a pause menu
 
 
 def gameEnd(screen, winner, playerImage):
-    print("do something here")
+    clock = pygame.time.Clock()#get framerate
+    while True:
+        screen.fill("pink")
+
+        title_text = all_text(None, 150, "Player 1 Wins!", True, "orange")
+        screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 100))
+
+        newGame_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
+        newGame_button_clicked = all_buttons(screen, newGame_button, "New Game", None, 40, "red", "white")
+
+        quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
+        quit_button_clicked = all_buttons(screen, quit_button, "Quit", None, 40, "red", "white")
+
+        if quit_button_clicked:
+            pygame.quit()
+            exit()
+            
+        if newGame_button_clicked:
+            return True
+
+        pygame.display.flip()
+        clock.tick(60)
+
+        for event in pygame.event.get(): #make sure the game quits when the user closes the entire window
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+
 
 def inGame(screen, playing):
     screen = pygame.display.set_mode((1280, 700))
@@ -225,7 +253,7 @@ def inGame(screen, playing):
     conveyerSwitch = True
     # while game is running
     while running:
-        if(player_one_score > 50 | player_two_score > 50):
+        if(player_one_score > 1 | player_two_score > 1):
             if(player_one_score > player_two_score):
                 gameEnd(screen, "PLAYER ONE", playerImage)
             if(player_one_score < player_two_score):
