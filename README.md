@@ -7,7 +7,8 @@ A pygame for computer science project
 1. Devesh Hukmani - 100003100
 2. Michael Lima - 100001559
 3. Ziqiao Tang - 100001270
-4. Dimitri Kovzanadze- 100001966
+4. Dimitri Kovzanadze - 100001966
+5. Tekla Katchakhidze - 100003109
 
 ## Game Intro
 
