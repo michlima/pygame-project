@@ -142,9 +142,9 @@ def mainMenu(screen, playing):#to create a main menu
             "8. Press P to pause the game.",
 
         ]
-        instructionY = 200  # Move instructions up (from 250 to 200)
+        instructionY = 170  # Move instructions up (from 250 to 200)
         for line in instructions:
-            instructionText = allText(None, 30, line, True, "black")
+            instructionText = allText(None, 30, line, True, "white")
             screen.blit(instructionText, ((screen.get_width() - instructionText.get_width()) / 2, instructionY))
             instructionY += 30  # Increase Y position for the next line of instructions
 
