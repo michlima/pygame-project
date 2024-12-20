@@ -173,8 +173,7 @@ def main_menu(screen, playing):#to create a main menu
 
 def pause_menu(screen):#created a pause menu
     clock = pygame.time.Clock()
-    inMain = True
-    while inMain:
+    while True:
         screen.fill("lightgray")
 
         pause_text = all_text(None, 150, "PAUSED", True, "blue")#to display text on pause menu
