@@ -121,13 +121,12 @@ def main_menu(screen, playing):#to create a main menu
     clock = pygame.time.Clock()#get framerate
     inMainMenu = not playing
     
-    while inMainMenu: #main menu shows until player click to start or quit game
 
-        screen.fill("lightgray") #the background color of main menu
-        
+    while inMainMenu: #main menu shows until player click to start or quit game
+        screen.fill("lightgray") #the background color of main menu        
         # To make a smaller title
         title_text = all_text(None, 100, "BOX MASTER", True, "purple")  # Reduced font size from 150 to 100
-        screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 80))  # Move title up slightly
+        screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 70))  # Move title up slightly
 
         # Add "How to Play" instructions
         instructions = [
@@ -137,14 +136,14 @@ def main_menu(screen, playing):#to create a main menu
             "3. Match boxes to their corresponding drop-off zones to score points.",
             "4. Watch out for bombs! They deduct points  and paralyze player for 2 seconds when they explode.",
             "5. with player facing the conveyer, press space for player one and press enter for player two, to pick up boxes.",
-            "7. Press P to pause the game.",
-            "6. The Game ends when someone gets 31 points.",
-            "8. Put the bombs in black drop-off zones before Bomb explodes to score points.",
+            "6. Put the bombs in black drop-off zones before Bomb explodes to score points.",
+            "7. The Game ends when someone gets 30 points.",
+            "8. Press P to pause the game.",
 
         ]
-        instruction_y = 200  # Move instructions up (from 250 to 200)
+        instruction_y = 150 # Move instructions up (from 250 to 150)
         for line in instructions:
-            instruction_text = all_text(None, 30, line, True, "black")
+            instruction_text = all_text(None, 30, line, True, "white")
             screen.blit(instruction_text, ((screen.get_width() - instruction_text.get_width()) / 2, instruction_y))
             instruction_y += 30  # Increase Y position for the next line of instructions
 
