@@ -364,7 +364,6 @@ def inGame(screen, playing):
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN: #press P to call pause menu
                 if event.key == pygame.K_p or event.key == pygame.K_ESCAPE :
-                   print('I am pausing')
                    if pause_menu(screen):
                        running = False
             if event.type == pygame.QUIT:
