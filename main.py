@@ -264,7 +264,7 @@ def inGame(screen, playing):
     conveyerSwitch = True
     # while game is running
     while running:
-        if(player_one_score > 1 or player_two_score > 30):
+        if(player_one_score > 29 or player_two_score > 29):
             if(player_one_score > player_two_score):
                 restart = gameEnd(screen, "PLAYER ONE", playerImage)
                 if(restart):
