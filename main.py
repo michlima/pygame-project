@@ -185,8 +185,8 @@ def gameEnd(screen, winner, playerImage):
     clock = pygame.time.Clock()#get framerate
     while True:
         screen.fill("pink")
-
-        title_text = all_text(None, 150, "Player 1 Wins!", True, "orange")
+        screen.blit(playerImage, (screen.get_width()/2 - 30, screen.get_height() / 2 - 50 ))
+        title_text = all_text(None, 150, winner + " WINS!", True, "orange")
         screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 100))
 
         newGame_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
