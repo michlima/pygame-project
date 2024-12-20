@@ -116,6 +116,7 @@ def drawScreenObjects(screen,conveyerSwitch):
     screen.blit(tableImg,(0, 0))
     drawDropOffs(screen)
 
+
 def main_menu(screen, playing):#to create a main menu
     clock = pygame.time.Clock()#get framerate
     inMainMenu = not playing
@@ -124,17 +125,39 @@ def main_menu(screen, playing):#to create a main menu
 
         screen.fill("lightgray") #the background color of main menu
         
-        #to make a title
-        title_text = all_text(None, 150, "BOX MASTER", True, "purple")
-        screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 100))
+        # To make a smaller title
+        title_text = all_text(None, 100, "BOX MASTER", True, "purple")  # Reduced font size from 150 to 100
+        screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 80))  # Move title up slightly
 
-        #to add start button
+        # Add "How to Play" instructions
+        instructions = [
+            "How to Play:",
+            "1. Move Player 1 with W/A/S/D and Player 2 with Arrow Keys.",
+            "2. Press SPACE (Player 1) or 'return/enter' (Player 2) to pick or drop a box.",
+            "3. Match boxes to their corresponding drop-off zones to score points.",
+            "4. Watch out for bombs! They deduct points  and paralyze player for 2 seconds when they explode.",
+            "5. with player facing the conveyer, press space for player one and press enter for player two, to pick up boxes.",
+            "7. Press P to pause the game.",
+            "6. The Game ends when someone gets 31 points.",
+            "8. Put the bombs in black drop-off zones before Bomb explodes to score points.",
+
+        ]
+        instruction_y = 200  # Move instructions up (from 250 to 200)
+        for line in instructions:
+            instruction_text = all_text(None, 30, line, True, "black")
+            screen.blit(instruction_text, ((screen.get_width() - instruction_text.get_width()) / 2, instruction_y))
+            instruction_y += 30  # Increase Y position for the next line of instructions
+
+        # Add start button
         start_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)
         start_button_clicked = all_buttons(screen, start_button, "New Game", None, 40, "darkgreen", "white")
 
-        
+        # Add quit button
         quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
         quit_button_clicked = all_buttons(screen, quit_button, "Quit", None, 40, "red", "white")
+
+        if start_button_clicked:  # click to start the game
+            break  # the main menu function breaks and the game starts
 
 
         if start_button_clicked: #click to start the game
@@ -143,6 +166,15 @@ def main_menu(screen, playing):#to create a main menu
         if quit_button_clicked: #click to quit the game
             pygame.quit()
             exit()
+            
+        pygame.display.flip()  # render display & buttons
+
+        clock.tick(60)  # limiting framerate to 60 in main menu
+
+        for event in pygame.event.get():  # make sure the game quits when the user closes the entire window
+            if event.type == pygame.QUIT:
+                return True
+
 
 
         pygame.display.flip() #render display & buttons
