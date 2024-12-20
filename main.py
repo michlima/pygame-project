@@ -132,10 +132,12 @@ def drawScreenObjects(screen,conveyerSwitch):
     screen.blit(tableImg,(0, 0))
     drawDropOffs(screen)
 
-def main_menu(screen):#to create a main menu
+def main_menu(screen, playing):#to create a main menu
     clock = pygame.time.Clock()#get framerate
+    inMainMenu = not playing
     
-    while True: #main menu shows until player click to start or quit game
+    while inMainMenu: #main menu shows until player click to start or quit game
+
         screen.fill("lightgray") #the background color of main menu
         
         #to make a title
@@ -152,10 +154,11 @@ def main_menu(screen):#to create a main menu
 
 
         if start_button_clicked: #click to start the game
-             break #the main menu function breaks and the game starts
+            return True #the main menu function breaks and the game starts
 
         if quit_button_clicked: #click to quit the game
-            return True
+            pygame.quit()
+            exit()
 
 
         pygame.display.flip() #render display & buttons
@@ -164,20 +167,24 @@ def main_menu(screen):#to create a main menu
 
         for event in pygame.event.get(): #make sure the game quits when the user closes the entire window
             if event.type == pygame.QUIT:
-                return True
-
+                pygame.quit()
+                exit()
 
 
 def pause_menu(screen):#created a pause menu
     clock = pygame.time.Clock()
-    while True:
+    inMain = True
+    while inMain:
         screen.fill("lightgray")
 
         pause_text = all_text(None, 150, "PAUSED", True, "blue")#to display text on pause menu
         screen.blit(pause_text, ((screen.get_width() - pause_text.get_width()) / 2, 100))
 
-        resume_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)#added resume button
+        resume_button = pygame.Rect(screen.get_width() / 2 - 100, 350, 200, 60)#added resume button
         resume_button_clicked = all_buttons(screen, resume_button, "Resume", None, 40, "darkgreen", "white")
+
+        newgame_button = pygame.Rect(screen.get_width() / 2 - 100, 450, 200, 60)#added resume button
+        newgame_button_clicked = all_buttons(screen, newgame_button, "New Game", None, 40, "darkorange", "white")
 
         #to add quit button
         quit_button = pygame.Rect(screen.get_width() / 2 - 100, 550, 200, 60)
@@ -185,6 +192,9 @@ def pause_menu(screen):#created a pause menu
 
         if resume_button_clicked:
             break
+        
+        if newgame_button_clicked:
+            return True
 
         if quit_button_clicked:
             pygame.quit()
@@ -205,7 +215,6 @@ def runMusic():
     pygame.mixer.music.play(-1, 0.0)  # Loop the music indefinitely
 
 def inGame(screen, playing):
-    pygame.init()
     screen = pygame.display.set_mode((1280, 700))
     clock = pygame.time.Clock()
     paused = False #to call pause menu later
@@ -304,14 +313,15 @@ def inGame(screen, playing):
             boxColor = random.choice(boxColors)
             queuedBoxes.append({"rect": pygame.Rect(screen.get_width() / 2 - 32, 0, 55, 55), "points": randomPoints,"color": boxColor, "box_is_bomb": True,"image":boxesImgs[boxColor]})
             count = 0
-
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN: #press P to call pause menu
                 if event.key == pygame.K_p:
-                   # paused = True
-                    pause_menu(screen)
+                   print('I am pausing')
+                   if pause_menu(screen):
+                       running = False
             if event.type == pygame.QUIT:
-                return True
+                pygame.quit()
+                exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     if player_one_box:
@@ -456,19 +466,10 @@ def main():
     screen = pygame.display.set_mode((1280, 700))
     running = True # Game is running
     playing = True # Player is playing game
+    main_menu(screen, False)
     while(running):
-        playing = not playing # switches from main menu to in game every time a session ends
-        if playing:
-            exit = inGame(screen, playing)
-            if(exit):
-                pygame.quit()
-        else:
-            exit = main_menu(screen)
-            if(exit):
-                pygame.quit()
-        
-    pygame.quit()
-
-
+        exit = inGame(screen, playing)
+        if(exit):
+            pygame.quit()
 if __name__ == "__main__":
     main()
