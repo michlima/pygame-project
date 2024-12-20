@@ -10,23 +10,40 @@ A pygame for computer science project
 4. Dimitri Kovzanadze - 100001966
 5. Tekla Katchakhidze - 100003109
 
-## Game Intro
-
-### How to play
-
-Player has the objective to stack boxes on their respective location.
-
-### Goal
-
-Stack boxes as fast as you can to avoid losing
-
-### Points
-
-Each box you stack you get a certain amount of points. Some boxes give extra points but have a chance of exploding while you carry them. **Pick it up at your own risk**!
+## Game Goal and Controls
 
 ### How to win & how to lose
 
 After achieving a decided amount of points each player will race to achieve those points as fast as possible. First one there wins!
+
+### How to play
+#### Goal of the game
+The goal of the game is to pick up boxes and place them on the same color dropoff zone in order to accumulate points. First player to get to 30 points will win. Box points are random and there is no way to know how much points a box has until you place it in it's corresponding drop-off zone.
+
+#### Challenges
+Boxes may contain a bomb but it is also impossible to know if a box contains a bomb until you pick it up. Once player has picked up the box and the box is a bomb it will turn into a bomb and player needs to discard the bomb in the black drop off zone before bomb explodes. If bomb explodes before player can discard the bomb then the player will lose points and will be unable to move for two seconds. If player can discard the bomb before it explodes he will receive the points atributed to it
+
+### Game controls
+
+#### Player movement
+Player 1 movement W/A/S/D :
+W       - to move up
+S       - to move down
+D       - to move right
+A       - to move left
+SPACE   - pick up box / drop box
+
+Player 2 movement ARROW KEYS:
+-- arrow keys movement --
+ENTER    - pick up box / drop box
+
+#### Picking and dropping off box
+To **pick up** a box get as close to the convyer belt as possible and click the pick up box button corresponding to the player you are playing.
+
+To **drop a box** get as close to the drop-off zone as possible and click the drop box button corresponding to the player you are playing.
+
+#### Pausing game
+Press P to pause the game.
 
 ## Pseudocode
 
