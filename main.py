@@ -181,6 +181,9 @@ def pause_menu(screen):#created a pause menu
                 exit()
 
 
+def gameEnd(screen, winner, playerImage):
+    print("do something here")
+
 def inGame(screen, playing):
     screen = pygame.display.set_mode((1280, 700))
     
@@ -222,6 +225,12 @@ def inGame(screen, playing):
     conveyerSwitch = True
     # while game is running
     while running:
+        if(player_one_score > 50 | player_two_score > 50):
+            if(player_one_score > player_two_score):
+                gameEnd(screen, "PLAYER ONE", playerImage)
+            if(player_one_score < player_two_score):
+                gameEnd(screen, "PLAYER ONE", playerTwoImage)
+            
         screen.fill("skyblue")
         ## draw coveyer table
         drawScreenObjects(screen, conveyerSwitch)
@@ -302,7 +311,7 @@ def inGame(screen, playing):
                             player_one_box["rect"].x = player_pos.x 
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SLASH:
+                if event.key == pygame.K_RETURN:
                     if player_two_box:
                         boxDroppedPoints = dropBox(screen, False, player2_pos, player_two_box)
                         player_two_score += boxDroppedPoints  # Add points if box is dropped
