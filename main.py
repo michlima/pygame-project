@@ -123,7 +123,7 @@ def main_menu(screen, playing):#to create a main menu
     
 
     while inMainMenu: #main menu shows until player click to start or quit game
-        screen.fill("lightgray") #the background color of main menu        
+        screen.fill("black") #the background color of main menu        
         # To make a smaller title
         title_text = all_text(None, 100, "BOX MASTER", True, "purple")  # Reduced font size from 150 to 100
         screen.blit(title_text, ((screen.get_width() - title_text.get_width()) / 2, 70))  # Move title up slightly
